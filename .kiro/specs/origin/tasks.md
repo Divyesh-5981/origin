@@ -27,8 +27,8 @@ Stack: Next.js (App Router) + TypeScript strict, Tailwind + shadcn/ui, Motion, T
     - Create `src/config` constants (`MAX_ATTEMPTS`, backoff base/cap, max answer length, `baseAnimationBudget`, draft storage key, passion options)
     - _Requirements: 2.1, 4.2, 6.2, 9.3, 14.7_
 
-- [ ] 2. Pure core — rendering, capability, and accessibility budgets
-  - [ ] 2.1 Implement `src/lib/core/render-mode.ts`
+- [x] 2. Pure core — rendering, capability, and accessibility budgets
+  - [x] 2.1 Implement `src/lib/core/render-mode.ts`
     - Implement `resolveRenderMode(cap, surfaceSupports3D)` returning exactly one of `3d-full | 3d-reduced | 2d-fallback`
     - Guarantee no 3D mode when `webglAvailable` is false or the surface does not support 3D; reduced motion never yields `3d-full`; low tier with WebGL yields `3d-reduced`
     - _Requirements: 1.2, 1.4, 1.5, 1.7, 7.4, 7.5, 11.7, 15.2, 15.3_
@@ -41,7 +41,7 @@ Stack: Next.js (App Router) + TypeScript strict, Tailwind + shadcn/ui, Motion, T
     - **Property 2: Capability degrades to reduced or fallback**
     - **Validates: Requirements 1.5, 14.3, 15.2**
 
-  - [ ] 2.4 Implement contrast and animation-budget utilities
+  - [x] 2.4 Implement contrast and animation-budget utilities
     - Add `src/lib/core/theme-contrast.ts` computing WCAG contrast ratio for token pairs (>= 4.5:1 body, >= 3:1 large)
     - Add `src/lib/core/animation-budget.ts` resolving concurrent non-essential animations capped at `baseAnimationBudget` for any motion preference
     - _Requirements: 14.4, 14.7_
