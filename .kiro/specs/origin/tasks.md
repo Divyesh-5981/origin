@@ -125,8 +125,8 @@ Stack: Next.js (App Router) + TypeScript strict, Tailwind + shadcn/ui, Motion, T
     - **Property 11: Duplicate in-flight requests are ignored**
     - **Validates: Requirements 6.3**
 
-- [ ] 5. Pure core — safety, poster, narration, draft, and share helpers
-  - [ ] 5.1 Implement `src/lib/core/content-safety.ts`
+- [x] 5. Pure core — safety, poster, narration, draft, and share helpers
+  - [x] 5.1 Implement `src/lib/core/content-safety.ts`
     - Implement `screenInput(answers)` returning `allow | refuse(hate|illegal) | sanitize(offensive|self-harm|copyright)`
     - _Requirements: 13.1, 13.2, 13.3, 13.4, 13.5_
 
@@ -134,7 +134,7 @@ Stack: Next.js (App Router) + TypeScript strict, Tailwind + shadcn/ui, Motion, T
     - **Property 21: Unsafe input is classified into the correct action**
     - **Validates: Requirements 13.1, 13.2, 13.4**
 
-  - [ ] 5.3 Implement `src/lib/core/poster-spec.ts`
+  - [x] 5.3 Implement `src/lib/core/poster-spec.ts`
     - Implement `withPosterDefaults(spec)` filling every missing field with defined defaults
     - _Requirements: 8.4_
 
@@ -142,7 +142,7 @@ Stack: Next.js (App Router) + TypeScript strict, Tailwind + shadcn/ui, Motion, T
     - **Property 14: Poster defaulting fills every missing field**
     - **Validates: Requirements 8.4**
 
-  - [ ] 5.5 Implement `src/lib/core/narration-selection.ts`
+  - [x] 5.5 Implement `src/lib/core/narration-selection.ts`
     - Implement `selectProvider({ elevenAvailable, webSpeechAvailable, userForcedWebSpeech })` encoding precedence and manual override
     - _Requirements: 10.1, 10.2, 10.6, 10.7_
 
@@ -150,7 +150,7 @@ Stack: Next.js (App Router) + TypeScript strict, Tailwind + shadcn/ui, Motion, T
     - **Property 18: Narration provider precedence and override**
     - **Validates: Requirements 10.1, 10.2, 10.6, 10.7**
 
-  - [ ] 5.7 Implement `src/lib/core/draft-codec.ts`
+  - [x] 5.7 Implement `src/lib/core/draft-codec.ts`
     - Implement `encodeDraft(draft)` and total `decodeDraft(raw)` that never throws and returns `{ ok: false }` on corruption
     - _Requirements: 3.2, 3.7_
 
@@ -158,7 +158,7 @@ Stack: Next.js (App Router) + TypeScript strict, Tailwind + shadcn/ui, Motion, T
     - **Property 7: Draft codec round-trips and decodes total**
     - **Validates: Requirements 3.2, 3.7**
 
-  - [ ] 5.9 Implement `src/lib/core/share-links.ts`
+  - [x] 5.9 Implement `src/lib/core/share-links.ts`
     - Implement canonical share-URL builder, QR payload encoder/decoder, and social share-intent URL construction with percent-encoding
     - _Requirements: 11.3, 11.6_
 
