@@ -54,8 +54,8 @@ Stack: Next.js (App Router) + TypeScript strict, Tailwind + shadcn/ui, Motion, T
     - **Property 23: Concurrent animations respect the baseline budget**
     - **Validates: Requirements 14.7**
 
-- [ ] 3. Pure core — input classification, normalization, and step navigation
-  - [ ] 3.1 Implement `src/lib/core/input-classifier.ts`
+- [x] 3. Pure core — input classification, normalization, and step navigation
+  - [x] 3.1 Implement `src/lib/core/input-classifier.ts`
     - Implement `classifyAnswer` (`ok | needs-followup:single-word | needs-text:emoji-only`), `isEffectivelyEmpty` (all-whitespace/empty), and `detectContradictions(answers)`
     - _Requirements: 2.5, 9.1, 9.2, 9.4_
 
@@ -71,7 +71,7 @@ Stack: Next.js (App Router) + TypeScript strict, Tailwind + shadcn/ui, Motion, T
     - **Property 16: Emoji-only answers require a text description**
     - **Validates: Requirements 9.2**
 
-  - [ ] 3.5 Implement `src/lib/core/answer-normalizer.ts`
+  - [x] 3.5 Implement `src/lib/core/answer-normalizer.ts`
     - Implement `needsSummarization(text, max)` and `prepareForGeneration(answers, cfg)` (mark over-length for summarization bounded by max; flag non-English answers for translation)
     - _Requirements: 9.3, 13.6_
 
@@ -79,7 +79,7 @@ Stack: Next.js (App Router) + TypeScript strict, Tailwind + shadcn/ui, Motion, T
     - **Property 17: Over-length answers are summarized and bounded**
     - **Validates: Requirements 9.3**
 
-  - [ ] 3.7 Implement `src/lib/core/generator-nav.ts`
+  - [x] 3.7 Implement `src/lib/core/generator-nav.ts`
     - Implement pure step navigation (`advance`, `back`, `activeStepType`) bounded to 7 steps, custom-passion acceptance, and `canGenerate(answers)`
     - _Requirements: 2.2, 2.3, 2.7, 2.8, 2.9, 2.10_
 
