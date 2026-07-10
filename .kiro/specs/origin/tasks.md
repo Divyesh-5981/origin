@@ -95,8 +95,8 @@ Stack: Next.js (App Router) + TypeScript strict, Tailwind + shadcn/ui, Motion, T
     - **Property 6: Generation enabled iff all answers valid**
     - **Validates: Requirements 2.8**
 
-- [ ] 4. Pure core — story schema, generation policy, and request dedupe
-  - [ ] 4.1 Implement `src/lib/core/story-schema.ts`
+- [x] 4. Pure core — story schema, generation policy, and request dedupe
+  - [x] 4.1 Implement `src/lib/core/story-schema.ts`
     - Define `StorySchema` (hero title, tagline, 1000–1500 word originStory refinement, 5 timeline stages, character profile, quote, trailer script, social assets, poster spec, inferredContent) and derived types
     - Implement `validateStory(candidate)`, `issuesToRepairHints(issues)`, and the Gemini `responseSchema` projection
     - _Requirements: 4.2, 4.3, 4.8_
@@ -105,7 +105,7 @@ Stack: Next.js (App Router) + TypeScript strict, Tailwind + shadcn/ui, Motion, T
     - **Property 8: Story schema validation enforces structure and word count**
     - **Validates: Requirements 4.2, 4.3**
 
-  - [ ] 4.3 Implement `src/lib/core/generation-policy.ts`
+  - [x] 4.3 Implement `src/lib/core/generation-policy.ts`
     - Implement `nextAction(state)` (`call | repair | succeed | fail`), `shouldRetryRateLimit(attempt, max)`, `backoffMs(attempt, base, cap)` as a pure reducer
     - _Requirements: 4.4, 4.5, 4.7, 4.9, 4.10_
 
@@ -117,7 +117,7 @@ Stack: Next.js (App Router) + TypeScript strict, Tailwind + shadcn/ui, Motion, T
     - **Property 10: Rate-limit backoff is monotonic, capped, and bounded by max attempts**
     - **Validates: Requirements 4.5**
 
-  - [ ] 4.6 Implement `src/lib/core/request-dedupe.ts`
+  - [x] 4.6 Implement `src/lib/core/request-dedupe.ts`
     - Implement `registerRequest(store, id)` and `resolveRequest(store, id)` tracking in-flight request identifiers
     - _Requirements: 6.2, 6.3_
 
