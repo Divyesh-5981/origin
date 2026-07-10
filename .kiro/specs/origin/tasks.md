@@ -170,19 +170,19 @@ Stack: Next.js (App Router) + TypeScript strict, Tailwind + shadcn/ui, Motion, T
     - **Property 20: Social share intents embed the encoded share URL**
     - **Validates: Requirements 11.6**
 
-- [ ] 6. Checkpoint - pure core complete
+- [x] 6. Checkpoint - pure core complete
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 7. Services layer (I/O adapters)
-  - [ ] 7.1 Implement `src/lib/services/gemini-service.ts`
+- [x] 7. Services layer (I/O adapters)
+  - [x] 7.1 Implement `src/lib/services/gemini-service.ts`
     - Wrap `@google/genai` with `generateStory(prompt, schema)` and `repairStory(prompt, hints)`; distinguish rate-limit errors for backoff
     - _Requirements: 4.1, 4.4, 4.5_
 
-  - [ ] 7.2 Implement `src/lib/services/story-repository.ts`
+  - [x] 7.2 Implement `src/lib/services/story-repository.ts`
     - Supabase adapter with `insertStoryRecord` (anonymous `owner_id = null`), `getStoryRecord`, `listStoriesForUser`, `deleteStoryRecord`; include SQL/migration for the `stories` table and RLS
     - _Requirements: 4.6, 11.2, 12.2, 12.3, 12.4, 12.5_
 
-  - [ ] 7.3 Implement `src/lib/services/generation-orchestrator.ts`
+  - [x] 7.3 Implement `src/lib/services/generation-orchestrator.ts`
     - Compose safety screen → normalize → the `generation-policy` loop over `gemini-service` + `validateStory` → persist; return discriminated `success | refusal | error`; enforce success-path-only persistence
     - _Requirements: 4.1, 4.4, 4.6, 4.7, 4.9, 4.10, 9.3, 13.1, 13.2, 13.3, 13.4, 13.5, 13.6_
 
@@ -190,11 +190,11 @@ Stack: Next.js (App Router) + TypeScript strict, Tailwind + shadcn/ui, Motion, T
     - Mock Gemini + Supabase; assert happy path generates with schema, persists, returns record id; refusal and exhaustion produce correct discriminated results
     - _Requirements: 4.1, 4.6, 4.7_
 
-  - [ ] 7.5 Implement `src/lib/services/narration-service.ts`
+  - [x] 7.5 Implement `src/lib/services/narration-service.ts`
     - Server-only ElevenLabs streaming proxy returning an audio stream; report availability for provider selection
     - _Requirements: 10.1, 10.2_
 
-  - [ ] 7.6 Implement `src/lib/services/share-service.ts`
+  - [x] 7.6 Implement `src/lib/services/share-service.ts`
     - Compose `share-links` helpers with the record; ensure share-URL creation failure does not fail generation (returns `shareUrl: null`)
     - _Requirements: 11.1, 11.8_
 
