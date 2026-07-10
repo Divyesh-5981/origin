@@ -1,0 +1,135 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@config "../../tailwind.config.ts";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-surface-elevated: hsl(var(--surface-elevated));
+  --color-surface-sunken: hsl(var(--surface-sunken));
+  --color-glow: hsl(var(--glow));
+  --color-gradient-start: hsl(var(--gradient-start));
+  --color-gradient-mid: hsl(var(--gradient-mid));
+  --color-gradient-end: hsl(var(--gradient-end));
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  :root {
+    --background: 40 40% 97%;
+    --foreground: 252 40% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 252 40% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 252 40% 12%;
+
+    --primary: 32 92% 46%;
+    --primary-foreground: 252 45% 12%;
+
+    --secondary: 265 44% 93%;
+    --secondary-foreground: 252 44% 22%;
+
+    --muted: 250 24% 92%;
+    --muted-foreground: 250 14% 38%;
+
+    --accent: 265 72% 52%;
+    --accent-foreground: 40 44% 98%;
+
+    --destructive: 0 72% 44%;
+    --destructive-foreground: 40 44% 98%;
+
+    --border: 250 22% 85%;
+    --input: 250 22% 85%;
+    --ring: 32 92% 46%;
+
+    --surface-elevated: 0 0% 100%;
+    --surface-sunken: 40 30% 93%;
+    --glow: 38 92% 55%;
+    --gradient-start: 265 72% 58%;
+    --gradient-mid: 312 62% 56%;
+    --gradient-end: 36 94% 54%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 252 33% 7%;
+    --foreground: 40 30% 96%;
+
+    --card: 250 28% 10%;
+    --card-foreground: 40 30% 96%;
+
+    --popover: 250 30% 9%;
+    --popover-foreground: 40 30% 96%;
+
+    --primary: 38 95% 58%;
+    --primary-foreground: 250 45% 9%;
+
+    --secondary: 265 40% 20%;
+    --secondary-foreground: 40 30% 96%;
+
+    --muted: 250 22% 16%;
+    --muted-foreground: 250 16% 74%;
+
+    --accent: 265 74% 66%;
+    --accent-foreground: 250 45% 9%;
+
+    --destructive: 0 74% 60%;
+    --destructive-foreground: 40 30% 98%;
+
+    --border: 250 22% 19%;
+    --input: 250 22% 19%;
+    --ring: 38 95% 58%;
+
+    --surface-elevated: 250 26% 12%;
+    --surface-sunken: 252 38% 5%;
+    --glow: 38 95% 60%;
+    --gradient-start: 265 70% 30%;
+    --gradient-mid: 300 52% 30%;
+    --gradient-end: 38 90% 46%;
+  }
+
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading tracking-tight;
+  }
+}

@@ -463,3 +463,229 @@ interface AttemptState {
 ```
 
 Consumed by `nextAction`/`backoffMs` to drive the orchestrator loop deterministically.
+
+---
+
+## Correctness Properties
+
+_A property is a characteristic or behavior that should hold true across all valid executions of a system — essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees._
+
+These properties target the **pure core** modules, which contain the input-varying logic worth exercising across hundreds of generated inputs. UI presence checks, navigation, persistence side effects, and infrastructure wiring are covered by example and integration tests in the Testing Strategy instead.
+
+### Property 1: Render mode is single-valued and never 3D without capability
+
+_For any_ capability input (any combination of `webglAvailable`, `reducedMotion`, `deviceTier`) and any surface flag, `resolveRenderMode` returns exactly one value from `{"3d-full", "3d-reduced", "2d-fallback"}`, and that value is never a 3D mode when `webglAvailable` is false or the surface does not support 3D.
+
+**Validates: Requirements 1.2, 1.4, 1.7, 7.4, 7.5, 11.7, 15.3**
+
+### Property 2: Capability degrades to reduced or fallback
+
+_For any_ capability input where `reducedMotion` is true, `resolveRenderMode` never returns `"3d-full"`; and _for any_ input where `webglAvailable` is true and `deviceTier` is `"low"`, it returns `"3d-reduced"`.
+
+**Validates: Requirements 1.5, 14.3, 15.2**
+
+### Property 3: Step navigation is consistent and bounded
+
+_For any_ answer set and any current step index, advancing from a non-final step increases the index by exactly one, advancing from the final step leaves the index unchanged, and going back from any step after the first decreases the index by one while keeping the active step type consistent with the index and retaining all previously entered values.
+
+**Validates: Requirements 2.2, 2.3, 2.9, 2.10**
+
+### Property 4: Empty required input blocks advancing
+
+_For any_ string composed entirely of whitespace (including the empty string), `isEffectivelyEmpty` returns true and the advance control for that required field is disabled.
+
+**Validates: Requirements 2.5**
+
+### Property 5: Custom passion is accepted verbatim
+
+_For any_ non-empty custom passion text, selecting it results in the selected `Passion` equalling that exact text.
+
+**Validates: Requirements 2.7**
+
+### Property 6: Generation enabled iff all answers valid
+
+_For any_ `Answers` object, the generation control is enabled if and only if every required field is present and not effectively empty.
+
+**Validates: Requirements 2.8**
+
+### Property 7: Draft codec round-trips and decodes total
+
+_For any_ `Draft`, `decodeDraft(encodeDraft(draft))` yields `{ ok: true, draft }` equal to the original; and _for any_ arbitrary string, `decodeDraft` never throws and returns `{ ok: false }` for input it cannot parse.
+
+**Validates: Requirements 3.2, 3.7**
+
+### Property 8: Story schema validation enforces structure and word count
+
+_For any_ candidate object, `validateStory` accepts it if and only if it contains all required fields (hero title, tagline, timeline of five stages, character profile, quote, trailer script, social assets, poster spec) and its `originStory` word count lies within 1000–1500 inclusive; any candidate missing a field or outside the word range is rejected with issues.
+
+**Validates: Requirements 4.2, 4.3**
+
+### Property 9: Generation policy transitions are correct and terminal
+
+_For any_ `AttemptState`: if a valid story exists, `nextAction` is `"succeed"`; else if attempts remain and the last outcome was invalid, `nextAction` is `"repair"`; else if the maximum number of attempts has been reached without a valid story, `nextAction` is `"fail"` regardless of any partial results.
+
+**Validates: Requirements 4.4, 4.7, 4.9, 4.10**
+
+### Property 10: Rate-limit backoff is monotonic, capped, and bounded by max attempts
+
+_For any_ attempt number below the maximum, `shouldRetryRateLimit` returns true, and `backoffMs` is non-decreasing as the attempt number grows and never exceeds the configured cap.
+
+**Validates: Requirements 4.5**
+
+### Property 11: Duplicate in-flight requests are ignored
+
+_For any_ request identifier, registering it while it is in flight accepts the first registration and rejects every subsequent registration of the same identifier until it is resolved.
+
+**Validates: Requirements 6.3**
+
+### Property 12: Microsite render completeness is gated by a valid record
+
+_For any_ valid `Story_Record`, the microsite renders all eight sections (Hero, Story, Timeline, Character, Poster, Quotes, Future, Share), the Story section contains the origin story text, and the Timeline section renders exactly as many stages as the record's timeline; _for any_ input without a valid record, no story text or timeline stages are rendered.
+
+**Validates: Requirements 7.1, 7.2, 7.3, 7.7**
+
+### Property 13: Poster reflects its specification
+
+_For any_ complete `PosterSpec`, the rendered poster output includes the title, subtitle, primary/secondary/accent colors, layout, and every decoration named in the specification.
+
+**Validates: Requirements 8.2**
+
+### Property 14: Poster defaulting fills every missing field
+
+_For any_ partial `PosterSpec`, `withPosterDefaults` returns a specification in which every field is defined, using the provided value where present and the defined default otherwise.
+
+**Validates: Requirements 8.4**
+
+### Property 15: Single-word answers require a follow-up
+
+_For any_ non-empty answer consisting of a single token (no internal whitespace), `classifyAnswer` returns `needs-followup`.
+
+**Validates: Requirements 9.1**
+
+### Property 16: Emoji-only answers require a text description
+
+_For any_ answer consisting solely of emoji characters, `classifyAnswer` returns `needs-text`.
+
+**Validates: Requirements 9.2**
+
+### Property 17: Over-length answers are summarized and bounded
+
+_For any_ text whose length exceeds the configured maximum, `needsSummarization` returns true and the answer produced by `prepareForGeneration` has length no greater than the configured maximum.
+
+**Validates: Requirements 9.3**
+
+### Property 18: Narration provider precedence and override
+
+_For any_ combination of availability flags, `selectProvider` returns `"webspeech"` whenever the user forces Web Speech and Web Speech is available; otherwise it returns `"elevenlabs"` when ElevenLabs is available, then `"webspeech"` when only Web Speech is available, and `"none"` only when neither is available.
+
+**Validates: Requirements 10.1, 10.2, 10.6, 10.7**
+
+### Property 19: QR code round-trips the share URL
+
+_For any_ share URL, decoding the generated QR payload yields the original URL.
+
+**Validates: Requirements 11.3**
+
+### Property 20: Social share intents embed the encoded share URL
+
+_For any_ supported social target and any share URL, the constructed share intent URL contains the correctly percent-encoded share URL.
+
+**Validates: Requirements 11.6**
+
+### Property 21: Unsafe input is classified into the correct action
+
+_For any_ answers containing a flagged hate/extremist token, `screenInput` returns `refuse` with category `hate`; _for any_ answers describing a flagged illegal achievement, it returns `refuse` with category `illegal`; and _for any_ answers containing flagged offensive tokens (without hate/illegal content), it returns `sanitize` with category `offensive`.
+
+**Validates: Requirements 13.1, 13.2, 13.4**
+
+### Property 22: Text contrast meets accessibility thresholds
+
+_For any_ defined foreground/background token pair used for text, the computed contrast ratio is at least 4.5:1 for body text and at least 3:1 for large text.
+
+**Validates: Requirements 14.4**
+
+### Property 23: Concurrent animations respect the baseline budget
+
+_For any_ motion preference (reduced or not), the number of concurrent non-essential animations resolved for a page never exceeds `baseAnimationBudget`.
+
+**Validates: Requirements 14.7**
+
+---
+
+## Error Handling
+
+Errors are handled at the boundary closest to their source, and every failure has a defined user-visible outcome that keeps the demo flow alive.
+
+### AI Pipeline (`/api/generate`)
+
+- **Invalid model output:** `validateStory` fails → the orchestrator issues one repair request per remaining attempt, feeding `issuesToRepairHints(issues)` back to Gemini. Persistence never occurs for unvalidated output (Requirements 4.4, 4.9).
+- **Rate limiting:** rate-limit errors are detected in `gemini-service` and drive `backoffMs` retries via `generation-policy`; the request is not counted as a hard failure until attempts are exhausted (Requirement 4.5).
+- **Exhausted attempts:** after `MAX_ATTEMPTS` without a valid story, the handler returns `502 { error: "generation_failed", message }`. The progress view surfaces the message and a retry control (Requirements 4.7, 4.10, 5.3).
+- **Content refusal:** `screenInput` returns `refuse` → `422` with an explanatory message; no Gemini call is made (Requirements 13.1, 13.2).
+
+### Persistence & Sharing
+
+- **Story insert failure:** returns `502`; nothing is persisted, generation is reported as failed.
+- **Share URL creation failure (post-persist):** generation still succeeds; the client receives `shareUrl: null` and the UI shows "sharing is unavailable" without blocking the story (Requirement 11.8).
+- **Missing record on load:** RSC read returns null → `not-found.tsx` renders an on-brand message with a "Return to Landing" control (Requirement 7.6).
+
+### Rendering & Degradation
+
+- **No WebGL / reduced motion / low tier:** handled proactively by `resolveRenderMode`; the 2D `FallbackScene` or reduced 3D renders instead of failing (Requirements 1.4, 1.5, 15.2, 15.3).
+- **Character card fallback failure:** an error boundary around the card renders an error placeholder in the Character section (Requirement 7.8).
+- **Poster render failure:** the `PosterRenderer` catches render/serialization errors, shows an error message, and suppresses the download action (Requirement 8.5).
+- **3D asset independence:** 3D scenes load in isolated Suspense/error boundaries so a primary-content failure does not block them and vice versa (Requirement 15.6).
+
+### Draft Persistence
+
+- **Corrupted draft:** `decodeDraft` returns `{ ok: false }` (never throws) → the generator notifies the user and starts a fresh draft (Requirement 3.7).
+- **Clear-after-success failure:** swallowed; the generated story is presented regardless (Requirement 3.6).
+- **Network interruption:** answers remain in `Draft_Store`; the flow resumes on reconnect (Requirements 3.3, 3.4).
+
+### Narration
+
+- **ElevenLabs unavailable/quota (`503`):** the client falls back to the Web Speech provider per `selectProvider` (Requirement 10.2).
+- **No provider available:** narration controls are hidden and the trailer script text is shown instead (Requirement 10.6).
+
+### Duplicate Submission
+
+- The generation control disables on submit and stays disabled while duplicates are ignored; the server rejects duplicate in-flight request ids with `409` (Requirements 6.1, 6.3, 6.4).
+
+### Error Boundaries
+
+Route-segment `error.tsx` boundaries wrap `/create`, `/story/[id]`, and `/s/[id]`; component-level boundaries wrap each 3D leaf and the poster renderer. No raw error text is shown to users — all boundaries render on-brand fallbacks with a recovery action.
+
+---
+
+## Testing Strategy
+
+Origin uses a dual approach: **property-based tests** for the pure core (universal correctness across generated inputs) and **example/integration tests** for UI presence, navigation, persistence, and external-service wiring. Property-based testing applies here because the core decision logic (render-mode resolution, schema validation, generation policy, input classification, provider selection, poster defaulting, safety screening) consists of pure functions with meaningful input variation — exactly where 100+ generated iterations find edge cases that a few examples miss. UI rendering, 3D scenes, Supabase/Clerk/ElevenLabs integration, and the Gemini call itself are covered by example and integration tests, not PBT.
+
+### Tooling
+
+- **Test runner:** Vitest (fast, TS-native, works with Next.js).
+- **Property-based testing:** `fast-check` (the standard PBT library for TypeScript; > 100k downloads). Property tests must not be hand-rolled.
+- **Component testing:** React Testing Library for RSC-compatible leaves and client components.
+- **Accessibility:** `@axe-core/react`/`jest-axe`-style assertions for names, roles, and contrast spot-checks.
+- **Type safety gate:** `pnpm tsc --noEmit` must pass with zero errors.
+
+### Property Test Requirements
+
+- Each of the 23 correctness properties is implemented as a **single** `fast-check` property test.
+- Each property test runs a **minimum of 100 iterations** (`fc.assert(fc.property(...), { numRuns: 100 })`).
+- Each test is tagged with a comment referencing the design property in the format:
+  `// Feature: origin, Property {number}: {property_text}`
+- Custom `fast-check` arbitraries are defined for `Capability`, `Answers`, `Draft`, `Story`, `PosterSpec`, and `AttemptState` so generators exercise realistic and adversarial inputs (empty strings, whitespace, emoji, over-length text, boundary word counts at 999/1000/1500/1501, missing poster fields, all availability-flag combinations).
+
+### Example & Integration Tests
+
+- **Landing/Generator/Progress/Share UI:** presence of CTA, tagline, step list, progress indicator, retry control, QR, copy, social, PNG download (Requirements 1.1, 1.3, 1.6, 2.1, 2.4, 2.6, 5.1–5.3, 10.3–10.5, 11.1, 11.4, 11.5).
+- **Generation orchestration:** mocked Gemini + Supabase to assert the happy path calls generate with the schema, persists, and returns a record id, and that refusal/exhaustion return the correct status codes (Requirements 4.1, 4.6).
+- **Edge cases:** corrupted draft handling, clear-after-success failure, nav-failure fallback, poster render failure, character fallback failure, share-url failure, contradiction detection, non-English translation flag, 3D asset independence (Requirements 3.6, 5.5, 7.8, 8.5, 9.4, 11.8, 13.6, 15.6).
+- **Account flow:** anonymous vs authenticated insert, list, and delete against a test Supabase instance (Requirements 12.1–12.5).
+- **Accessibility & responsiveness:** keyboard traversal, accessible names, reduced-motion behavior, breakpoint layout, orientation state preservation (Requirements 14.1, 14.2, 14.5, 14.6).
+
+### Performance Verification
+
+- Lighthouse checks on the demo flow targeting Performance/Accessibility/Best-Practices > 90 and Core Web Vitals (LCP < 2.5s, CLS < 0.1), consistent with the hackathon delivery checklist.
+- Verify 3D scenes load via `next/dynamic` with defined loading states and do not block first paint (Requirements 15.1, 15.4).
