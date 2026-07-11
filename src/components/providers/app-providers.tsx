@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 import { ThemeProvider } from "next-themes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { CapabilityProvider } from "@/components/providers/capability-provider";
 
 interface AppProvidersProps {
 	children: ReactNode;
@@ -29,7 +30,9 @@ export function AppProviders({ children }: AppProvidersProps) {
 			enableSystem
 			disableTransitionOnChange
 		>
-			<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+			<QueryClientProvider client={queryClient}>
+				<CapabilityProvider>{children}</CapabilityProvider>
+			</QueryClientProvider>
 		</ThemeProvider>
 	);
 }

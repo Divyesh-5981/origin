@@ -23,6 +23,11 @@ export function isRateLimitError(error: unknown): boolean {
   return error instanceof GeminiServiceError && error.kind === "rate-limit";
 }
 
+export function isGeminiConfigured(): boolean {
+  const key = process.env.GEMINI_API_KEY ?? process.env.GOOGLE_API_KEY;
+  return typeof key === "string" && key.trim().length > 0;
+}
+
 let client: GoogleGenAI | null = null;
 
 function resolveApiKey(): string {

@@ -21,6 +21,7 @@ vi.mock("@/lib/services/gemini-service", () => {
     GeminiServiceError,
     generateStory: mockGenerateStory,
     repairStory: mockRepairStory,
+    isGeminiConfigured: () => true,
     isRateLimitError: (error: unknown): boolean =>
       error instanceof GeminiServiceError && error.kind === "rate-limit",
   };

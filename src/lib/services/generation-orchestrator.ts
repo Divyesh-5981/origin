@@ -24,9 +24,11 @@ import {
 import {
   GeminiServiceError,
   generateStory,
+  isGeminiConfigured,
   isRateLimitError,
   repairStory,
 } from "@/lib/services/gemini-service";
+import { buildMockStory } from "@/lib/services/mock-story";
 import {
   insertStoryRecord,
   type StoryRecordRef,
@@ -140,6 +142,19 @@ export async function runGeneration(
   });
   const prompt = buildStoryPrompt(normalized, sanitizeConstraints);
   const ownerId = input.ownerId ?? null;
+
+  if (!isGeminiConfigured()) {
+    try {
+      const record = await insertStoryRecord({
+        answers: normalized.values,
+        story: buildMockStory(normalized.values),
+        ownerId,
+      });
+      return { kind: "success", record };
+    } catch (error) {
+      return { kind: "error", message: toErrorMessage(error) };
+    }
+  }
 
   let state: AttemptState = {
     attempt: 0,

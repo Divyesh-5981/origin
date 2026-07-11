@@ -1,12 +1,14 @@
 import "server-only";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { auth } from "@clerk/nextjs/server";
 import {
   emptyRequestStore,
   registerRequest,
   resolveRequest,
   type RequestStore,
 } from "@/lib/core/request-dedupe";
+import { isClerkConfigured } from "@/lib/auth/clerk-config";
 import { runGeneration } from "@/lib/services/generation-orchestrator";
 import { createShareUrl } from "@/lib/services/share-service";
 import type {
@@ -81,7 +83,8 @@ export async function POST(request: Request): Promise<NextResponse> {
   requestStore = registration.store;
 
   try {
-    const result = await runGeneration({ answers });
+    const ownerId = isClerkConfigured() ? (await auth()).userId : null;
+    const result = await runGeneration({ answers, ownerId });
 
     if (result.kind === "refusal") {
       const refusal: GenerateRefusalResponse = {

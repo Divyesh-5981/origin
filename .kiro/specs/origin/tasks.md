@@ -215,24 +215,24 @@ Stack: Next.js (App Router) + TypeScript strict, Tailwind + shadcn/ui, Motion, T
     - Clerk-authenticated handler removing an account-owned record
     - _Requirements: 12.5_
 
-- [ ] 9. Checkpoint - backend and services complete
+- [x] 9. Checkpoint - backend and services complete
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 10. Capability provider and shared rendering surfaces
-  - [ ] 10.1 Implement `CapabilityProvider` context and hooks
+- [x] 10. Capability provider and shared rendering surfaces
+  - [x] 10.1 Implement `CapabilityProvider` context and hooks
     - Probe `webglAvailable`, `reducedMotion`, and `deviceTier` once after hydration; expose per-surface `RenderMode` via `resolveRenderMode`
     - _Requirements: 1.2, 1.5, 15.2, 15.5_
 
-  - [ ] 10.2 Implement `shared/FallbackScene` 2D hero
+  - [x] 10.2 Implement `shared/FallbackScene` 2D hero
     - Polished 2D fallback used across Landing, Character, and Share surfaces
     - _Requirements: 1.4, 7.5, 15.3_
 
-  - [ ] 10.3 Implement dynamic 3D scene loader wrappers
+  - [x] 10.3 Implement dynamic 3D scene loader wrappers
     - `next/dynamic` (`ssr: false`) + Suspense + error boundary wrappers with defined loading states so primary content paints first and 3D loads independently
     - _Requirements: 15.1, 15.4, 15.6_
 
-- [ ] 11. Landing page
-  - [ ] 11.1 Implement Landing RSC with `HeroLanding` and `HeroScene3D` leaf
+- [x] 11. Landing page
+  - [x] 11.1 Implement Landing RSC with `HeroLanding` and `HeroScene3D` leaf
     - Render product name, tagline, keyboard-focusable/activatable "Begin Journey" CTA linking to the generator; render exactly one of 3D hero or 2D fallback
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 14.1, 14.2_
 
@@ -240,16 +240,16 @@ Stack: Next.js (App Router) + TypeScript strict, Tailwind + shadcn/ui, Motion, T
     - Assert CTA presence, accessible name, keyboard activation, and single-render-mode behavior
     - _Requirements: 1.1, 1.3, 1.6_
 
-- [ ] 12. Story generator flow
-  - [ ] 12.1 Implement `StepWizard` and seven step components
+- [x] 12. Story generator flow
+  - [x] 12.1 Implement `StepWizard` and seven step components
     - Orchestrate 7 ordered steps with progress indicator and back/next wired to `generator-nav`; RHF + per-step Zod; disabled advance on empty required fields; Passion step with predefined + custom entry; enable generation when all valid
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 2.10, 14.6_
 
-  - [ ] 12.2 Implement `useDraftPersistence` hook
+  - [x] 12.2 Implement `useDraftPersistence` hook
     - Debounced write to `Draft_Store` on change; restore answers + active step on mount; notify and start fresh on corrupted draft; clear on success and swallow clear failures
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7_
 
-  - [ ] 12.3 Implement follow-up and contradiction handling UI
+  - [x] 12.3 Implement follow-up and contradiction handling UI
     - Prompt one contextual follow-up for single-word answers, prompt for text on emoji-only, and surface contradiction flags with edit affordances via `input-classifier`
     - _Requirements: 9.1, 9.2, 9.4_
 
@@ -257,8 +257,8 @@ Stack: Next.js (App Router) + TypeScript strict, Tailwind + shadcn/ui, Motion, T
     - Assert step list/position, custom passion entry, draft restore, corrupted-draft recovery, and follow-up/contradiction prompts
     - _Requirements: 2.1, 2.4, 2.6, 3.6, 3.7, 9.4_
 
-- [ ] 13. Generation progress experience
-  - [ ] 13.1 Implement `GenerationProgress` client
+- [x] 13. Generation progress experience
+  - [x] 13.1 Implement `GenerationProgress` client
     - Drive the TanStack Query mutation to `/api/generate`; disable the generation control until resolve and while duplicates are ignored; animated (or reduced) progress; navigate to the microsite on success; error + retry; inline fallback/link if navigation fails
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 6.1, 6.4_
 
@@ -266,8 +266,8 @@ Stack: Next.js (App Router) + TypeScript strict, Tailwind + shadcn/ui, Motion, T
     - Assert progress render, disabled control on submit, error + retry control, and reduced-motion indicator behavior
     - _Requirements: 5.1, 5.3, 5.4, 6.1_
 
-- [ ] 14. Interactive story microsite
-  - [ ] 14.1 Implement Story microsite RSC, `StorySections`, and not-found
+- [x] 14. Interactive story microsite
+  - [x] 14.1 Implement Story microsite RSC, `StorySections`, and not-found
     - Render Hero/Story/Timeline/Character/Poster/Quotes/Future/Share from a valid record; render no story text or timeline without a valid record; add on-brand `not-found.tsx` with a Return-to-Landing control
     - _Requirements: 7.1, 7.2, 7.3, 7.6, 7.7_
 
@@ -275,11 +275,11 @@ Stack: Next.js (App Router) + TypeScript strict, Tailwind + shadcn/ui, Motion, T
     - **Property 12: Microsite render completeness is gated by a valid record**
     - **Validates: Requirements 7.1, 7.2, 7.3, 7.7**
 
-  - [ ] 14.3 Implement `CharacterCard3D` with fallback and error placeholder
+  - [x] 14.3 Implement `CharacterCard3D` with fallback and error placeholder
     - Holographic tilt card when capability allows; 2D fallback otherwise; error placeholder if the fallback fails
     - _Requirements: 7.4, 7.5, 7.8_
 
-  - [ ] 14.4 Implement `PosterRenderer`
+  - [x] 14.4 Implement `PosterRenderer`
     - Render poster from spec via SVG/Canvas applying theme/colors/title/subtitle/layout/decorations with `withPosterDefaults`; PNG export; error message with suppressed download on failure
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
@@ -287,12 +287,12 @@ Stack: Next.js (App Router) + TypeScript strict, Tailwind + shadcn/ui, Motion, T
     - **Property 13: Poster reflects its specification**
     - **Validates: Requirements 8.2**
 
-  - [ ] 14.6 Implement `NarrationControls`
+  - [x] 14.6 Implement `NarrationControls`
     - Provider selection via `selectProvider` (ElevenLabs → Web Speech), male/female voice choice, play/pause; manual Web Speech override; hide controls and show trailer script when no provider
     - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7_
 
-- [ ] 15. Share page
-  - [ ] 15.1 Implement Share page RSC and `SharePanel`
+- [x] 15. Share page
+  - [x] 15.1 Implement Share page RSC and `SharePanel`
     - Public no-auth render from persisted record; QR code, copy-story, social share targets, PNG download; celebratory 3D hero when capability allows
     - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5, 11.6, 11.7, 11.8_
 
@@ -300,8 +300,8 @@ Stack: Next.js (App Router) + TypeScript strict, Tailwind + shadcn/ui, Motion, T
     - Assert unauthenticated render, QR display, copy-to-clipboard, social intent targets, and PNG download availability
     - _Requirements: 11.1, 11.2, 11.4, 11.5_
 
-- [ ] 16. Optional accounts (guest-first)
-  - [ ] 16.1 Integrate Clerk and the saved-stories page
+- [x] 16. Optional accounts (guest-first)
+  - [x] 16.1 Integrate Clerk and the saved-stories page
     - Guest generation without auth; associate new records with authenticated users; `/stories` RSC listing saved records with delete wired to `DELETE /api/stories/[id]`
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
 
@@ -309,7 +309,7 @@ Stack: Next.js (App Router) + TypeScript strict, Tailwind + shadcn/ui, Motion, T
     - Assert anonymous vs authenticated insert, list, and delete against a test Supabase instance
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
 
-- [ ] 17. Final checkpoint - full demo flow
+- [x] 17. Final checkpoint - full demo flow
   - Ensure all tests pass and the Landing → Generator → Progress → Microsite → Share flow is wired end to end; ask the user if questions arise.
 
 ## Notes

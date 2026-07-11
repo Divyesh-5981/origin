@@ -1,5 +1,5 @@
 import "server-only";
-import { randomBytes } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { Answers } from "@/types";
 import type { Story } from "@/lib/core/story-schema";
@@ -74,6 +74,24 @@ const UNIQUE_VIOLATION = "23505";
 
 let cachedClient: SupabaseClient<Database> | null = null;
 
+export function isSupabaseConfigured(): boolean {
+  return (
+    typeof process.env.SUPABASE_URL === "string" &&
+    process.env.SUPABASE_URL.trim().length > 0 &&
+    typeof process.env.SUPABASE_SERVICE_ROLE_KEY === "string" &&
+    process.env.SUPABASE_SERVICE_ROLE_KEY.trim().length > 0
+  );
+}
+
+const globalStore = globalThis as typeof globalThis & {
+  __originMemoryStore?: Map<string, StoryRecord>;
+};
+
+const memoryStore =
+  globalStore.__originMemoryStore ?? new Map<string, StoryRecord>();
+
+globalStore.__originMemoryStore = memoryStore;
+
 function getClient(): SupabaseClient<Database> {
   if (cachedClient !== null) {
     return cachedClient;
@@ -114,8 +132,23 @@ function mapRow(row: StoryRow): StoryRecord {
 export async function insertStoryRecord(
   input: InsertStoryInput,
 ): Promise<StoryRecordRef> {
-  const client = getClient();
   const ownerId = input.ownerId ?? null;
+
+  if (!isSupabaseConfigured()) {
+    const id = randomUUID();
+    const slug = generateSlug();
+    memoryStore.set(id, {
+      id,
+      ownerId,
+      slug,
+      answers: input.answers,
+      story: input.story,
+      createdAt: new Date().toISOString(),
+    });
+    return { id, slug };
+  }
+
+  const client = getClient();
 
   for (let attempt = 0; attempt < MAX_SLUG_ATTEMPTS; attempt += 1) {
     const slug = generateSlug();
@@ -150,6 +183,15 @@ export async function insertStoryRecord(
 export async function getStoryRecordBySlug(
   slug: string,
 ): Promise<StoryRecord | null> {
+  if (!isSupabaseConfigured()) {
+    for (const record of memoryStore.values()) {
+      if (record.slug === slug) {
+        return record;
+      }
+    }
+    return null;
+  }
+
   const client = getClient();
   const { data, error } = await client
     .from("stories")
@@ -171,6 +213,10 @@ export async function getStoryRecordBySlug(
 export async function getStoryRecordById(
   id: string,
 ): Promise<StoryRecord | null> {
+  if (!isSupabaseConfigured()) {
+    return memoryStore.get(id) ?? null;
+  }
+
   const client = getClient();
   const { data, error } = await client
     .from("stories")
@@ -192,6 +238,12 @@ export async function getStoryRecordById(
 export async function listStoriesForUser(
   ownerId: string,
 ): Promise<StoryRecord[]> {
+  if (!isSupabaseConfigured()) {
+    return [...memoryStore.values()]
+      .filter((record) => record.ownerId === ownerId)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+
   const client = getClient();
   const { data, error } = await client
     .from("stories")
@@ -211,6 +263,14 @@ export async function deleteStoryRecord(
   id: string,
   ownerId: string,
 ): Promise<void> {
+  if (!isSupabaseConfigured()) {
+    const record = memoryStore.get(id);
+    if (record !== undefined && record.ownerId === ownerId) {
+      memoryStore.delete(id);
+    }
+    return;
+  }
+
   const client = getClient();
   const { error } = await client
     .from("stories")

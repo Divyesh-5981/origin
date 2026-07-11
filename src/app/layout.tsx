@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Inter, JetBrains_Mono } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 import { AppProviders } from "@/components/providers/app-providers";
+import { isClerkConfigured } from "@/lib/auth/clerk-config";
 import "./globals.css";
 
 const fontHeading = Bricolage_Grotesque({
@@ -74,7 +76,13 @@ export default function RootLayout({
 			className={`${fontHeading.variable} ${fontBody.variable} ${fontMono.variable} h-full`}
 		>
 			<body className="flex min-h-full flex-col">
-				<AppProviders>{children}</AppProviders>
+				{isClerkConfigured() ? (
+					<ClerkProvider>
+						<AppProviders>{children}</AppProviders>
+					</ClerkProvider>
+				) : (
+					<AppProviders>{children}</AppProviders>
+				)}
 			</body>
 		</html>
 	);
