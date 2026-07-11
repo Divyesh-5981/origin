@@ -198,8 +198,8 @@ Stack: Next.js (App Router) + TypeScript strict, Tailwind + shadcn/ui, Motion, T
     - Compose `share-links` helpers with the record; ensure share-URL creation failure does not fail generation (returns `shareUrl: null`)
     - _Requirements: 11.1, 11.8_
 
-- [ ] 8. API route handlers
-  - [ ] 8.1 Implement `POST /api/generate`
+- [x] 8. API route handlers
+  - [x] 8.1 Implement `POST /api/generate`
     - Node-runtime handler: reject duplicate in-flight `requestId` (409), run orchestrator, return `200 { recordId, shareUrl }`, `422` refusal, `502` generation failure
     - _Requirements: 4.1, 4.6, 4.7, 4.10, 6.2, 6.3, 11.1, 11.8_
 
@@ -207,11 +207,11 @@ Stack: Next.js (App Router) + TypeScript strict, Tailwind + shadcn/ui, Motion, T
     - Assert 200/422/502/409 branches and `shareUrl: null` on share failure using mocked services
     - _Requirements: 4.6, 4.7, 6.3, 11.8_
 
-  - [ ] 8.3 Implement `POST /api/narrate`
+  - [x] 8.3 Implement `POST /api/narrate`
     - Node-runtime handler proxying ElevenLabs streaming TTS with voice selection; return `503` when unavailable so the client falls back
     - _Requirements: 10.1, 10.2, 10.3, 10.4_
 
-  - [ ] 8.4 Implement `DELETE /api/stories/[id]`
+  - [x] 8.4 Implement `DELETE /api/stories/[id]`
     - Clerk-authenticated handler removing an account-owned record
     - _Requirements: 12.5_
 
