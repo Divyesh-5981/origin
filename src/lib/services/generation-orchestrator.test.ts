@@ -31,6 +31,10 @@ vi.mock("@/lib/services/story-repository", () => ({
   insertStoryRecord: mockInsertStoryRecord,
 }));
 
+vi.mock("@/lib/services/heuristic-engine", () => ({
+  generateHeuristicStory: vi.fn(() => VALID_STORY),
+}));
+
 type OrchestratorModule = typeof import("./generation-orchestrator");
 
 async function loadOrchestrator(): Promise<OrchestratorModule> {
@@ -106,7 +110,7 @@ describe("generation-orchestrator runGeneration", () => {
     mockInsertStoryRecord.mockResolvedValue({ id: "rec-1", slug: "hero-slug" });
     const { runGeneration } = await loadOrchestrator();
 
-    const result = await runGeneration({ answers: VALID_ANSWERS });
+    const result = await runGeneration({ answers: VALID_ANSWERS, userApiKey: "test-key" });
 
     expect(result).toEqual({
       kind: "success",
@@ -123,7 +127,7 @@ describe("generation-orchestrator runGeneration", () => {
     mockInsertStoryRecord.mockResolvedValue({ id: "rec-2", slug: "owned" });
     const { runGeneration } = await loadOrchestrator();
 
-    await runGeneration({ answers: VALID_ANSWERS, ownerId: "user-123" });
+    await runGeneration({ answers: VALID_ANSWERS, ownerId: "user-123", userApiKey: "test-key" });
 
     expect(mockInsertStoryRecord).toHaveBeenCalledWith(
       expect.objectContaining({ ownerId: "user-123" }),
@@ -145,12 +149,26 @@ describe("generation-orchestrator runGeneration", () => {
     expect(mockInsertStoryRecord).not.toHaveBeenCalled();
   });
 
+  it("uses the heuristic engine when no userApiKey is provided", async () => {
+    mockInsertStoryRecord.mockResolvedValue({ id: "rec-heuristic", slug: "heuristic-slug" });
+    const { runGeneration } = await loadOrchestrator();
+
+    const result = await runGeneration({ answers: VALID_ANSWERS });
+
+    expect(result).toEqual({
+      kind: "success",
+      record: { id: "rec-heuristic", slug: "heuristic-slug" },
+    });
+    expect(mockGenerateStory).not.toHaveBeenCalled();
+    expect(mockInsertStoryRecord).toHaveBeenCalledTimes(1);
+  });
+
   it("returns an error and never persists when attempts are exhausted", async () => {
     mockGenerateStory.mockResolvedValue({});
     mockRepairStory.mockResolvedValue({});
     const { runGeneration } = await loadOrchestrator();
 
-    const result = await runGeneration({ answers: VALID_ANSWERS });
+    const result = await runGeneration({ answers: VALID_ANSWERS, userApiKey: "test-key" });
 
     expect(result.kind).toBe("error");
     expect(mockInsertStoryRecord).not.toHaveBeenCalled();
@@ -165,7 +183,7 @@ describe("generation-orchestrator runGeneration", () => {
     mockInsertStoryRecord.mockResolvedValue({ id: "rec-3", slug: "repaired" });
     const { runGeneration } = await loadOrchestrator();
 
-    const result = await runGeneration({ answers: VALID_ANSWERS });
+    const result = await runGeneration({ answers: VALID_ANSWERS, userApiKey: "test-key" });
 
     expect(result).toEqual({
       kind: "success",

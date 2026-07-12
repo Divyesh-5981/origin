@@ -53,7 +53,7 @@ describe("gemini-service", () => {
 
     expect(generateContentMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        model: "gemini-2.5-flash",
+        model: "gemini-3.5-flash",
         contents: "prompt",
         config: expect.objectContaining({
           responseMimeType: "application/json",

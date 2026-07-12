@@ -1,5 +1,6 @@
 import "server-only";
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { z } from "zod";
 import { auth } from "@clerk/nextjs/server";
 import {
@@ -42,6 +43,8 @@ const generateRequestSchema = z.object({
   answers: answersSchema,
 });
 
+const BYOK_COOKIE_NAME = "origin-byok-key";
+
 let requestStore: RequestStore = emptyRequestStore();
 
 export async function POST(request: Request): Promise<NextResponse> {
@@ -70,6 +73,10 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   const { requestId, answers } = parsed.data;
 
+  // BYOK: read user-provided API key from httpOnly cookie (never from client JS)
+  const cookieStore = await cookies();
+  const userApiKey = cookieStore.get(BYOK_COOKIE_NAME)?.value ?? null;
+
   const registration = registerRequest(requestStore, requestId);
 
   if (!registration.accepted) {
@@ -84,7 +91,7 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   try {
     const ownerId = isClerkConfigured() ? (await auth()).userId : null;
-    const result = await runGeneration({ answers, ownerId });
+    const result = await runGeneration({ answers, ownerId, userApiKey: userApiKey ?? null });
 
     if (result.kind === "refusal") {
       const refusal: GenerateRefusalResponse = {

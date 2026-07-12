@@ -2,7 +2,7 @@ import "server-only";
 import { ApiError, GoogleGenAI } from "@google/genai";
 import { storyResponseSchema, type GeminiSchema } from "@/lib/core/story-schema";
 
-const GEMINI_MODEL = "gemini-2.5-flash";
+const GEMINI_MODEL = "gemini-3.5-flash";
 const RATE_LIMIT_STATUS = 429;
 
 export type GeminiErrorKind = "rate-limit" | "request";

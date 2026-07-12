@@ -28,7 +28,7 @@ import {
   isRateLimitError,
   repairStory,
 } from "@/lib/services/gemini-service";
-import { buildMockStory } from "@/lib/services/mock-story";
+import { generateHeuristicStory } from "@/lib/services/heuristic-engine";
 import {
   insertStoryRecord,
   type StoryRecordRef,
@@ -38,6 +38,8 @@ import type { Answers, AttemptState } from "@/types";
 export interface GenerateStoryInput {
   answers: Answers;
   ownerId?: string | null;
+  /** Optional user-provided API key (BYOK). When set, LLM generation is used. */
+  userApiKey?: string | null;
 }
 
 export type GenerationResult =
@@ -143,11 +145,33 @@ export async function runGeneration(
   const prompt = buildStoryPrompt(normalized, sanitizeConstraints);
   const ownerId = input.ownerId ?? null;
 
-  if (!isGeminiConfigured()) {
+  // BYOK: If a user-provided API key is available, use LLM generation
+  const useLlm = input.userApiKey !== null && input.userApiKey !== undefined && input.userApiKey.trim().length > 0;
+
+  // Heuristic engine: instant, high-quality story generation without LLM
+  // Used when no user API key is provided (the default path)
+  if (!useLlm) {
     try {
+      const story = generateHeuristicStory(normalized.values);
       const record = await insertStoryRecord({
         answers: normalized.values,
-        story: buildMockStory(normalized.values),
+        story,
+        ownerId,
+      });
+      return { kind: "success", record };
+    } catch (error) {
+      return { kind: "error", message: toErrorMessage(error) };
+    }
+  }
+
+  // LLM path (BYOK or server-configured key) — future scope, kept for when
+  // a user provides their own API key
+  if (!isGeminiConfigured()) {
+    try {
+      const story = generateHeuristicStory(normalized.values);
+      const record = await insertStoryRecord({
+        answers: normalized.values,
+        story,
         ownerId,
       });
       return { kind: "success", record };

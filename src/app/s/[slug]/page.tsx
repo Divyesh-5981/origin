@@ -1,10 +1,10 @@
-import { notFound } from "next/navigation";
-import { getStoryRecordBySlug } from "@/lib/services/story-repository";
-import { isElevenLabsAvailable } from "@/lib/services/narration-service";
-import { createShareUrl } from "@/lib/services/share-service";
-import { HeroVisual } from "@/components/sections/hero-visual";
-import { SharePanel } from "@/components/share/share-panel";
-import { StorySections } from "@/components/story/story-sections";
+import { notFound } from 'next/navigation';
+import { getStoryRecordBySlug } from '@/lib/services/story-repository';
+import { isElevenLabsAvailable } from '@/lib/services/narration-service';
+import { createShareUrl } from '@/lib/services/share-service';
+import { HeroVisual } from '@/components/sections/hero-visual';
+import { SharePanel } from '@/components/share/share-panel';
+import { StorySections } from '@/components/story/story-sections';
 
 interface SharePageProps {
   params: Promise<{ slug: string }>;
@@ -27,10 +27,10 @@ export default async function SharePage({ params }: SharePageProps) {
           <HeroVisual />
         </div>
         <div
-          className="pointer-events-none absolute inset-0 -z-10 bg-gradient-glow"
+          className="pointer-events-none absolute inset-0 -z-10 bg-gradient-ignition"
           aria-hidden
         />
-        <h1 className="bg-gradient-cinematic bg-clip-text text-heading-lg text-transparent sm:text-display">
+        <h1 className="bg-gradient-cinematic bg-clip-text text-heading-lg text-transparent text-glow-spark sm:text-display">
           {record.story.heroTitle}
         </h1>
         <p className="mt-4 max-w-xl text-balance text-body-lg text-muted-foreground">

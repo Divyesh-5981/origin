@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useRef, useState } from "react";
-import { Download } from "lucide-react";
-import { withPosterDefaults } from "@/lib/core/poster-spec";
-import type { PosterSpec } from "@/types";
-import { Button } from "@/components/ui/button";
+import { useRef, useState } from 'react';
+import { Download } from 'lucide-react';
+import { withPosterDefaults } from '@/lib/core/poster-spec';
+import type { PosterSpec } from '@/types';
+import { Button } from '@/components/ui/button';
 
 const POSTER_WIDTH = 800;
 const POSTER_HEIGHT = 1200;
@@ -15,17 +15,17 @@ interface PosterRendererProps {
   fileName?: string;
 }
 
-function layoutAnchor(layout: PosterSpec["layout"]): {
+function layoutAnchor(layout: PosterSpec['layout']): {
   x: number;
-  anchor: "start" | "middle";
+  anchor: 'start' | 'middle';
 } {
-  if (layout === "LeftAligned") {
-    return { x: 72, anchor: "start" };
+  if (layout === 'LeftAligned') {
+    return { x: 72, anchor: 'start' };
   }
-  if (layout === "Split") {
-    return { x: POSTER_WIDTH / 2, anchor: "middle" };
+  if (layout === 'Split') {
+    return { x: POSTER_WIDTH / 2, anchor: 'middle' };
   }
-  return { x: POSTER_WIDTH / 2, anchor: "middle" };
+  return { x: POSTER_WIDTH / 2, anchor: 'middle' };
 }
 
 function PosterSvg({
@@ -52,20 +52,88 @@ function PosterSvg({
           <stop offset="0%" stopColor={spec.primaryColor} />
           <stop offset="100%" stopColor={spec.secondaryColor} />
         </linearGradient>
+        {/* Cinematic vignette */}
+        <radialGradient id="poster-vignette" cx="0.5" cy="0.5" r="0.7">
+          <stop offset="60%" stopColor="black" stopOpacity="0" />
+          <stop offset="100%" stopColor="black" stopOpacity="0.4" />
+        </radialGradient>
+        {/* Film grain filter */}
+        <filter id="poster-grain">
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.9"
+            numOctaves="2"
+          />
+          <feColorMatrix
+            type="matrix"
+            values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.08 0"
+          />
+          <feComposite in2="SourceGraphic" operator="over" />
+        </filter>
+        {/* Glow filter for title */}
+        <filter id="title-glow">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
       </defs>
-      <rect width={POSTER_WIDTH} height={POSTER_HEIGHT} fill={spec.background} />
-      <rect width={POSTER_WIDTH} height={POSTER_HEIGHT} fill="url(#poster-bg)" opacity="0.85" />
+      <rect
+        width={POSTER_WIDTH}
+        height={POSTER_HEIGHT}
+        fill={spec.background}
+      />
+      <rect
+        width={POSTER_WIDTH}
+        height={POSTER_HEIGHT}
+        fill="url(#poster-bg)"
+        opacity="0.85"
+      />
+      {/* Film grain overlay */}
+      <rect
+        width={POSTER_WIDTH}
+        height={POSTER_HEIGHT}
+        filter="url(#poster-grain)"
+        opacity="0.5"
+      />
+      {/* Decorative border frame */}
+      <rect
+        x="24"
+        y="24"
+        width={POSTER_WIDTH - 48}
+        height={POSTER_HEIGHT - 48}
+        fill="none"
+        stroke={spec.accent}
+        strokeWidth="1"
+        opacity="0.3"
+      />
+      {/* "Presents" eyebrow */}
+      <text
+        x={x}
+        y={80}
+        textAnchor={anchor}
+        fill={spec.accent}
+        fontSize="16"
+        letterSpacing="6"
+        fontFamily="sans-serif"
+        opacity="0.7"
+      >
+        ORIGIN PRESENTS
+      </text>
+      {/* Theme */}
       <text
         x={x}
         y={120}
         textAnchor={anchor}
         fill={spec.accent}
-        fontSize="28"
+        fontSize="24"
         letterSpacing="8"
         fontFamily="sans-serif"
       >
         {spec.theme.toUpperCase()}
       </text>
+      {/* Title with glow */}
       <text
         x={x}
         y={POSTER_HEIGHT / 2}
@@ -74,6 +142,7 @@ function PosterSvg({
         fontSize="76"
         fontWeight="700"
         fontFamily="sans-serif"
+        filter="url(#title-glow)"
       >
         {spec.title}
       </text>
@@ -96,19 +165,22 @@ function PosterSvg({
         fontFamily="sans-serif"
         opacity="0.85"
       >
-        {spec.decorations.join(" · ")}
+        {spec.decorations.join(' · ')}
       </text>
+      {/* Vignette overlay */}
+      <rect
+        width={POSTER_WIDTH}
+        height={POSTER_HEIGHT}
+        fill="url(#poster-vignette)"
+      />
     </svg>
   );
 }
 
-async function exportPng(
-  svg: SVGSVGElement,
-  fileName: string,
-): Promise<void> {
+async function exportPng(svg: SVGSVGElement, fileName: string): Promise<void> {
   const serialized = new XMLSerializer().serializeToString(svg);
   const svgBlob = new Blob([serialized], {
-    type: "image/svg+xml;charset=utf-8",
+    type: 'image/svg+xml;charset=utf-8',
   });
   const url = URL.createObjectURL(svgBlob);
 
@@ -119,21 +191,21 @@ async function exportPng(
 
     await new Promise<void>((resolve, reject) => {
       image.onload = () => resolve();
-      image.onerror = () => reject(new Error("Poster image failed to load"));
+      image.onerror = () => reject(new Error('Poster image failed to load'));
       image.src = url;
     });
 
-    const canvas = document.createElement("canvas");
+    const canvas = document.createElement('canvas');
     canvas.width = POSTER_WIDTH * EXPORT_SCALE;
     canvas.height = POSTER_HEIGHT * EXPORT_SCALE;
-    const context = canvas.getContext("2d");
+    const context = canvas.getContext('2d');
     if (context === null) {
-      throw new Error("Canvas context unavailable");
+      throw new Error('Canvas context unavailable');
     }
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-    const dataUrl = canvas.toDataURL("image/png");
-    const link = document.createElement("a");
+    const dataUrl = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
     link.href = dataUrl;
     link.download = fileName;
     link.click();
@@ -144,7 +216,7 @@ async function exportPng(
 
 export function PosterRenderer({
   spec,
-  fileName = "origin-poster.png",
+  fileName = 'origin-poster.png',
 }: PosterRendererProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [exportFailed, setExportFailed] = useState(false);
@@ -175,9 +247,13 @@ export function PosterRenderer({
           The poster couldn&apos;t be exported. Please try again.
         </p>
       ) : (
-        <Button variant="secondary" onClick={handleDownload} disabled={isExporting}>
+        <Button
+          variant="secondary"
+          onClick={handleDownload}
+          disabled={isExporting}
+        >
           <Download className="size-4" aria-hidden />
-          {isExporting ? "Preparing…" : "Download poster"}
+          {isExporting ? 'Preparing…' : 'Download poster'}
         </Button>
       )}
     </div>
