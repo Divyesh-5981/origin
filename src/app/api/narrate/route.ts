@@ -7,6 +7,7 @@ import {
 } from "@/lib/services/narration-service";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 const narrateRequestSchema = z.object({
   recordId: z.string().min(1),

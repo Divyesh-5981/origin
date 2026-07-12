@@ -20,6 +20,7 @@ import type {
 } from "@/types/api";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 const GENERATION_FAILED_MESSAGE =
   "We couldn't craft your story right now. Please try again in a moment.";

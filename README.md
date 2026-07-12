@@ -21,6 +21,7 @@ Built for the **DEV Weekend Challenge: Passion Edition**, targeting the **Google
 - [Project Structure](#project-structure)
 - [Testing](#testing)
 - [Accessibility & Graceful Degradation](#accessibility--graceful-degradation)
+- [Deployment](#deployment)
 - [License](#license)
 
 ---
@@ -212,6 +213,27 @@ The pure core in `src/lib/core` is intentionally free of React, network, and SDK
 - **Reduced motion** is respected across the app; animations are minimized when `prefers-reduced-motion` is set.
 - **Every 3D surface has a polished 2D fallback.** A single capability check (WebGL availability, reduced-motion preference, device tier) resolves each surface to exactly one render mode — `3d-full`, `3d-reduced`, or `2d-fallback` — never both.
 - 3D scenes load through deferred dynamic imports so primary content paints first, and are wrapped in error boundaries so a 3D failure can never break the page.
+
+---
+
+## Deployment
+
+Deploys to **Vercel** as a standard Next.js app (framework and pnpm are auto-detected).
+
+> **Important:** on serverless platforms like Vercel, the in-memory story store is **not** shared across function invocations, so `/api/generate` and the story/share pages run in different instances and links resolve to "This story doesn't exist." A **Postgres database (Supabase)** is required for a working deployment.
+
+Steps:
+
+1. **Provision persistence.** Create a Supabase project and run `supabase/migrations/20240601000000_create_stories_table.sql` in its SQL editor.
+2. **Import the repo** into Vercel.
+3. **Set environment variables** (Production + Preview):
+   - `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` — required for persistence.
+   - `GEMINI_API_KEY` (or `GOOGLE_API_KEY`) — required for real AI generation.
+   - `NEXT_PUBLIC_APP_URL` — your deployed origin, e.g. `https://your-app.vercel.app` (https, no trailing slash). Leaving this as `localhost` produces broken share links.
+   - ElevenLabs keys — optional, for premium narration.
+4. **Deploy**, then set `NEXT_PUBLIC_APP_URL` to the assigned domain and **redeploy** so share/QR links are correct.
+
+The `/api/generate` and `/api/narrate` routes set `maxDuration = 60` so AI generation and narration streaming stay within serverless time limits.
 
 ---
 
