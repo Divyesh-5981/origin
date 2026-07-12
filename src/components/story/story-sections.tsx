@@ -133,38 +133,86 @@ export function StorySections({
   if (showIntro) {
     return (
       <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black text-center px-4 overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-film-grain mix-blend-overlay opacity-30" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.9)_100%)]" />
+        {/* Dynamic 3D backdrop rendering behind opening credits */}
+        <div className="pointer-events-none absolute inset-0 z-0 opacity-25" aria-hidden>
+          <HeroVisual />
+        </div>
+        <div className="pointer-events-none absolute inset-0 z-10 bg-film-grain mix-blend-overlay opacity-30" />
+        <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.95)_100%)]" />
+
+        {/* Load cinematic font styles */}
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Playfair+Display:ital,wght@0,500;1,500&display=swap');
+          .film-title {
+            font-family: 'Cinzel', serif;
+            font-weight: 800;
+            letter-spacing: 0.15em;
+          }
+          .film-subtitle {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+          }
+        `}</style>
 
         <motion.div
-          initial={{ opacity: 0, filter: 'blur(10px)' }}
-          animate={{ opacity: 1, filter: 'blur(0px)' }}
-          transition={{ duration: 1.5, ease: 'easeOut' }}
-          className="max-w-xl flex flex-col items-center"
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.2, ease: 'easeOut' }}
+          className="relative z-20 max-w-2xl flex flex-col items-center"
         >
-          <span className="text-[10px] font-mono tracking-widest text-muted-foreground uppercase mb-6">
-            A NARRATIVE EXPERIMENT
-          </span>
-          <h1
-          id="hero-heading"
-          className="bg-gradient-to-r from-ignition-orange via-white to-electric-cyan bg-clip-text text-heading-lg text-transparent text-glow sm:text-display font-bold"
-        >
-          {story.heroTitle}
-        </h1>
-          <p className="mt-6 text-body-lg text-muted-foreground italic font-medium">
+          {/* Eyebrow credits */}
+          <motion.span 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.5 }}
+            transition={{ delay: 0.4, duration: 1.0 }}
+            className="tracking-[0.4em] text-[10px] text-white uppercase mb-6 block font-mono"
+          >
+            A NARRATIVE SCREENPLAY PREMIERE
+          </motion.span>
+
+          {/* Main Cinematic Title */}
+          <motion.h1
+            initial={{ opacity: 0, filter: 'blur(10px)' }}
+            animate={{ opacity: 1, filter: 'blur(0px)' }}
+            transition={{ delay: 0.8, duration: 1.2 }}
+            className="film-title bg-gradient-to-r from-ignition-orange via-white to-electric-cyan bg-clip-text text-heading-lg text-transparent text-glow sm:text-display font-bold leading-tight"
+          >
+            {story.heroTitle}
+          </motion.h1>
+
+          {/* Golden lens flare divider line */}
+          <motion.div 
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: 80, opacity: 0.5 }}
+            transition={{ delay: 1.2, duration: 0.8 }}
+            className="mt-6 h-[1px] bg-gradient-to-r from-transparent via-ignition-orange to-transparent"
+          />
+
+          {/* Story Tagline */}
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.7 }}
+            transition={{ delay: 1.4, duration: 1.0 }}
+            className="film-subtitle mt-6 text-body-lg text-white leading-relaxed max-w-lg"
+          >
             &quot;{story.tagline}&quot;
-          </p>
+          </motion.p>
 
-          <div className="mt-12 w-[1px] h-16 bg-gradient-to-b from-white/20 to-transparent" />
-
+          {/* Cinematic Start Button */}
           <motion.button
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.8, duration: 0.8 }}
             onClick={() => setShowIntro(false)}
-            className="group mt-12 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 px-6 py-3 text-caption font-bold text-white tracking-widest uppercase transition-all duration-300 transform-gpu hover:scale-105"
+            className="group mt-12 relative overflow-hidden rounded-full border border-white/20 bg-white/5 hover:border-white/40 px-8 py-4 text-xs font-bold text-white tracking-[0.2em] uppercase transition-all duration-300 transform-gpu hover:scale-105 shadow-glow-cyan"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.97 }}
           >
-            <Play className="size-4 fill-white" />
-            Enter Preview
+            <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
+            <span className="relative z-10 flex items-center gap-2">
+              <Play className="size-3.5 fill-white" />
+              Start Screening
+            </span>
           </motion.button>
         </motion.div>
       </div>

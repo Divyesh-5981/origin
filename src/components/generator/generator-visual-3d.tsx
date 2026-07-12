@@ -1,7 +1,7 @@
 'use client';
 
 import { Canvas, useFrame } from '@react-three/fiber';
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import * as THREE from 'three';
 
@@ -42,24 +42,165 @@ const spotlightFragmentShader = `
   }
 `;
 
+// --- FLOATING ATMOSPHERIC DUST MOTES ---
+function AtmosphericDustMotes() {
+  const pointsRef = useRef<THREE.Points>(null);
+  const count = 120;
+  
+  const [positions] = useMemo(() => {
+    const pos = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      pos[i * 3] = (Math.random() - 0.5) * 3.5; // X
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 4.5; // Y
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 3.5; // Z
+    }
+    return [pos];
+  }, []);
+
+  useFrame((state, delta) => {
+    if (!pointsRef.current) return;
+    const time = state.clock.getElapsedTime();
+    const posArr = pointsRef.current.geometry.attributes.position.array as Float32Array;
+    
+    for (let i = 0; i < count; i++) {
+      // Drift upwards lazily
+      posArr[i * 3 + 1] += delta * 0.18;
+      // Sway sideways (Brownian wind drift)
+      posArr[i * 3] += Math.sin(time * 0.5 + i) * 0.0015;
+      posArr[i * 3 + 2] += Math.cos(time * 0.5 + i) * 0.0015;
+      
+      // Wrap boundaries around the stage focus space
+      if (posArr[i * 3 + 1] > 2.5) posArr[i * 3 + 1] = -2.0;
+      if (posArr[i * 3] > 2.0) posArr[i * 3] = -2.0;
+      if (posArr[i * 3] < -2.0) posArr[i * 3] = 2.0;
+    }
+    pointsRef.current.geometry.attributes.position.needsUpdate = true;
+  });
+
+  return (
+    <points ref={pointsRef}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+      </bufferGeometry>
+      <pointsMaterial
+        color="#ffffff"
+        size={0.022}
+        sizeAttenuation
+        transparent
+        opacity={0.35}
+        blending={THREE.AdditiveBlending}
+      />
+    </points>
+  );
+}
+
+// --- RISING FIRE EMBERS (Step 3: The Origin/Struggle) ---
+function BurningEmbers({ active }: { active: boolean }) {
+  const pointsRef = useRef<THREE.Points>(null);
+  const count = 50;
+
+  const [positions] = useMemo(() => {
+    const pos = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      pos[i * 3] = (Math.random() - 0.5) * 1.5;
+      pos[i * 3 + 1] = -1.8 + Math.random() * 3.0;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 1.5;
+    }
+    return [pos];
+  }, []);
+
+  useFrame((state, delta) => {
+    if (!pointsRef.current) return;
+    const time = state.clock.getElapsedTime();
+    const posArr = pointsRef.current.geometry.attributes.position.array as Float32Array;
+    const mat = pointsRef.current.material as THREE.PointsMaterial;
+
+    if (active) {
+      mat.opacity = THREE.MathUtils.lerp(mat.opacity, 0.75, 0.05);
+      for (let i = 0; i < count; i++) {
+        // Rise faster representing burning trial sparks
+        posArr[i * 3 + 1] += delta * 0.45;
+        // Turbulence sway
+        posArr[i * 3] += Math.sin(time * 2.0 + i) * 0.003;
+        
+        // Recycle
+        if (posArr[i * 3 + 1] > 2.0) {
+          posArr[i * 3 + 1] = -1.8;
+          posArr[i * 3] = (Math.random() - 0.5) * 1.5;
+        }
+      }
+      pointsRef.current.geometry.attributes.position.needsUpdate = true;
+    } else {
+      mat.opacity = THREE.MathUtils.lerp(mat.opacity, 0.0, 0.08);
+    }
+  });
+
+  return (
+    <points ref={pointsRef}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+      </bufferGeometry>
+      <pointsMaterial
+        color="hsl(16, 100%, 55%)"
+        size={0.035}
+        sizeAttenuation
+        transparent
+        opacity={0}
+        blending={THREE.AdditiveBlending}
+      />
+    </points>
+  );
+}
+
+// --- PAPARAZZI FLASHBULBS (Step 4: The Breakthrough) ---
+function PaparazziFlashes({ active }: { active: boolean }) {
+  const flash1Ref = useRef<THREE.PointLight>(null);
+  const flash2Ref = useRef<THREE.PointLight>(null);
+
+  useFrame((state) => {
+    if (!active) {
+      if (flash1Ref.current) flash1Ref.current.intensity = 0;
+      if (flash2Ref.current) flash2Ref.current.intensity = 0;
+      return;
+    }
+    
+    // Trigger sudden explosive flashes decay
+    if (Math.random() > 0.95) {
+      if (flash1Ref.current) flash1Ref.current.intensity = 6.0 + Math.random() * 8.0;
+    } else {
+      if (flash1Ref.current) flash1Ref.current.intensity *= 0.85;
+    }
+
+    if (Math.random() > 0.96) {
+      if (flash2Ref.current) flash2Ref.current.intensity = 6.0 + Math.random() * 8.0;
+    } else {
+      if (flash2Ref.current) flash2Ref.current.intensity *= 0.85;
+    }
+  });
+
+  return (
+    <group>
+      <pointLight ref={flash1Ref} position={[-2.5, 1.2, -1.5]} color="#ffffff" distance={6} intensity={0} />
+      <pointLight ref={flash2Ref} position={[2.5, 0.8, -1.2]} color="#d0e8ff" distance={6} intensity={0} />
+    </group>
+  );
+}
+
 // --- HIGH-FIDELITY CHROME VINTAGE MICROPHONE ---
 function VintageMicrophone({ activeStep }: { activeStep: number }) {
   const micHeadRef = useRef<THREE.Group>(null);
   const ring1Ref = useRef<THREE.Mesh>(null);
   const ring2Ref = useRef<THREE.Mesh>(null);
 
-  // Rib count for the vintage Shure-style grille
   const ribs = Array.from({ length: 6 });
 
-  useFrame((state, delta) => {
+  useFrame((state) => {
     const time = state.clock.elapsedTime;
     
-    // Mic head floating vibration
     if (micHeadRef.current) {
       micHeadRef.current.position.y = 0.65 + Math.sin(time * 2.5) * 0.015;
     }
 
-    // Expanding soundwave particle rings (Step 2 - Passion)
     if (ring1Ref.current && ring2Ref.current) {
       if (activeStep === 1) {
         const scale1 = 1 + (time % 1) * 3;
@@ -79,9 +220,9 @@ function VintageMicrophone({ activeStep }: { activeStep: number }) {
   });
 
   const chromeMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: activeStep === 6 ? new THREE.Color('hsl(42, 100%, 55%)') : new THREE.Color('#dcdcdc'),
+    color: activeStep === 6 ? new THREE.Color('hsl(42, 100%, 55%)') : new THREE.Color('#e0e0e0'),
     metalness: 1.0,
-    roughness: 0.05, // Mirror chrome reflections
+    roughness: 0.05, 
   }), [activeStep]);
 
   const jointMaterial = useMemo(() => new THREE.MeshStandardMaterial({
@@ -94,7 +235,7 @@ function VintageMicrophone({ activeStep }: { activeStep: number }) {
       {/* Heavy Cast Iron Base */}
       <mesh position={[0, 0.05, 0]}>
         <cylinderGeometry args={[0.32, 0.38, 0.1, 24]} />
-        <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
+        <meshStandardMaterial color="#111111" roughness={0.9} />
       </mesh>
 
       {/* Main Chrome Stand Pole */}
@@ -111,13 +252,11 @@ function VintageMicrophone({ activeStep }: { activeStep: number }) {
 
       {/* Dynamic Mic Head assembly */}
       <group ref={micHeadRef}>
-        {/* Swivel joint bracket */}
         <mesh position={[0, 1.95, 0]} rotation={[0.3, 0, 0]}>
           <cylinderGeometry args={[0.012, 0.012, 0.08, 8]} />
           <primitive object={chromeMaterial} attach="material" />
         </mesh>
         
-        {/* U-Shape Mount Holder */}
         <group position={[0, 2.05, 0.02]} rotation={[0.2, 0, 0]}>
           <mesh>
             <torusGeometry args={[0.12, 0.015, 8, 16, Math.PI]} />
@@ -125,15 +264,12 @@ function VintageMicrophone({ activeStep }: { activeStep: number }) {
           </mesh>
         </group>
 
-        {/* Vintage Ribbed Mic Capsule */}
         <group position={[0, 2.12, 0.02]} rotation={[0.2, 0, 0]}>
-          {/* Inner dark core */}
           <mesh>
             <cylinderGeometry args={[0.09, 0.08, 0.22, 16]} />
             <meshBasicMaterial color="#080808" />
           </mesh>
 
-          {/* Stacking horizontal chrome ribs */}
           {ribs.map((_, i) => (
             <mesh key={i} position={[0, i * 0.04 - 0.1, 0]}>
               <torusGeometry args={[0.095 - Math.abs(i - 2.5) * 0.005, 0.012, 8, 20]} />
@@ -141,7 +277,6 @@ function VintageMicrophone({ activeStep }: { activeStep: number }) {
             </mesh>
           ))}
           
-          {/* Vertical central chrome spine */}
           <mesh position={[0, 0, 0.095]}>
             <boxGeometry args={[0.02, 0.22, 0.015]} />
             <primitive object={chromeMaterial} attach="material" />
@@ -162,7 +297,7 @@ function VintageMicrophone({ activeStep }: { activeStep: number }) {
   );
 }
 
-// --- FLOATING SCRIPT PAGES (Step 2) ---
+// --- FLUTTERING SCRIPT PAGES (Step 2: The Script/Origin) ---
 function FloatingScript({ active }: { active: boolean }) {
   const page1Ref = useRef<THREE.Mesh>(null);
   const page2Ref = useRef<THREE.Mesh>(null);
@@ -172,40 +307,41 @@ function FloatingScript({ active }: { active: boolean }) {
     const time = state.clock.elapsedTime;
     
     if (active) {
-      const radius1 = 1.1 + Math.sin(time) * 0.08;
-      const radius2 = 1.3 + Math.cos(time) * 0.08;
-      const angle1 = time * 0.7;
-      const angle2 = time * 0.7 + Math.PI;
+      const radius1 = 1.1 + Math.sin(time) * 0.06;
+      const radius2 = 1.3 + Math.cos(time) * 0.06;
+      const angle1 = time * 0.65;
+      const angle2 = time * 0.65 + Math.PI;
 
-      page1Ref.current.position.set(Math.cos(angle1) * radius1, 0.25 + Math.sin(time * 2.2) * 0.08, Math.sin(angle1) * radius1);
-      page2Ref.current.position.set(Math.cos(angle2) * radius2, 0.45 + Math.cos(time * 2.2) * 0.08, Math.sin(angle2) * radius2);
+      page1Ref.current.position.set(Math.cos(angle1) * radius1, 0.2 + Math.sin(time * 2.0) * 0.08, Math.sin(angle1) * radius1);
+      page2Ref.current.position.set(Math.cos(angle2) * radius2, 0.45 + Math.cos(time * 2.0) * 0.08, Math.sin(angle2) * radius2);
       
-      page1Ref.current.rotation.set(0.15, angle1 + Math.PI / 2, Math.sin(time) * 0.15);
-      page2Ref.current.rotation.set(-0.15, angle2 + Math.PI / 2, Math.cos(time) * 0.15);
+      // Add paper flutter wind wobble on local axis rotations
+      page1Ref.current.rotation.set(0.15 + Math.sin(time * 5.0) * 0.12, angle1 + Math.PI / 2, Math.cos(time * 4.0) * 0.1);
+      page2Ref.current.rotation.set(-0.15 + Math.cos(time * 5.0) * 0.12, angle2 + Math.PI / 2, Math.sin(time * 4.0) * 0.1);
       
-      page1Ref.current.scale.setScalar(1);
-      page2Ref.current.scale.setScalar(1);
+      page1Ref.current.scale.setScalar(THREE.MathUtils.lerp(page1Ref.current.scale.x, 1.0, 0.05));
+      page2Ref.current.scale.setScalar(THREE.MathUtils.lerp(page2Ref.current.scale.x, 1.0, 0.05));
     } else {
-      page1Ref.current.scale.setScalar(0);
-      page2Ref.current.scale.setScalar(0);
+      page1Ref.current.scale.setScalar(THREE.MathUtils.lerp(page1Ref.current.scale.x, 0, 0.08));
+      page2Ref.current.scale.setScalar(THREE.MathUtils.lerp(page2Ref.current.scale.x, 0, 0.08));
     }
   });
 
   return (
     <group>
-      <mesh ref={page1Ref}>
-        <planeGeometry args={[0.32, 0.42]} />
-        <meshBasicMaterial color="#ffffff" side={THREE.DoubleSide} wireframe />
+      <mesh ref={page1Ref} scale={0}>
+        <planeGeometry args={[0.32, 0.42, 4, 4]} />
+        <meshStandardMaterial color="#ffffff" side={THREE.DoubleSide} wireframe roughness={0.4} />
       </mesh>
-      <mesh ref={page2Ref}>
-        <planeGeometry args={[0.38, 0.48]} />
-        <meshBasicMaterial color="#ffffff" side={THREE.DoubleSide} wireframe />
+      <mesh ref={page2Ref} scale={0}>
+        <planeGeometry args={[0.38, 0.48, 4, 4]} />
+        <meshStandardMaterial color="#ffedd0" side={THREE.DoubleSide} wireframe roughness={0.4} />
       </mesh>
     </group>
   );
 }
 
-// --- CLAPPERBOARD ON STOOL (Step 0) ---
+// --- CLAPPERBOARD ON STOOL (Step 0: The Audition) ---
 function StageClapperboard({ active }: { active: boolean }) {
   const armRef = useRef<THREE.Group>(null);
   
@@ -229,13 +365,11 @@ function StageClapperboard({ active }: { active: boolean }) {
 
   return (
     <group position={[-1.2, -1.8, 0.4]} rotation={[0, Math.PI / 4, 0]}>
-      {/* Stool */}
       <mesh position={[0, 0.2, 0]}>
         <cylinderGeometry args={[0.22, 0.22, 0.4, 12]} />
         <meshStandardMaterial color="#111111" roughness={0.9} />
       </mesh>
       
-      {/* Clapperboard base */}
       <group position={[0, 0.45, 0]} scale={[0.55, 0.55, 0.55]}>
         <mesh>
           <boxGeometry args={[0.8, 0.5, 0.06]} />
@@ -284,11 +418,10 @@ function SpotlightCone({ activeStep }: { activeStep: number }) {
     if (!shaderMatRef.current) return;
     const time = state.clock.elapsedTime;
     
-    // Smooth color shift on shader
     const targetColor = colors[activeStep] || colors[0];
     shaderMatRef.current.uniforms.uColor.value.lerp(targetColor, 0.05);
 
-    // Flicker spotlight on Step 3 (Trial)
+    // Flicker spotlight on Step 3 (Trial) to represent voltage drops
     if (activeStep === 3) {
       const flicker = Math.random() > 0.85 ? 0.08 : 0.28;
       shaderMatRef.current.uniforms.uOpacity.value = flicker + Math.sin(time * 20) * 0.05;
@@ -371,11 +504,14 @@ function AuditionSparks({ activeStep }: { activeStep: number }) {
   );
 }
 
+// --- INTERACTIVE CAMERA OPERATOR CONTROLLER (CURSORS DOLLEYS) ---
 function CameraController({ activeStep, reduced }: { activeStep: number; reduced: boolean }) {
   useFrame((state) => {
     if (reduced) return;
     
     const time = state.clock.elapsedTime;
+    const mx = state.pointer.x; // Normalized mouse X: -1 to 1
+    const my = state.pointer.y; // Normalized mouse Y: -1 to 1
 
     let targetCamX = 0;
     let targetCamY = 0.5;
@@ -383,25 +519,25 @@ function CameraController({ activeStep, reduced }: { activeStep: number; reduced
     let lookAtY = 0.15;
 
     if (activeStep === 3) {
-      // Step 3 (Trial): Moody close profile
+      // Step 3 (Trial): Moody profile close-up
       targetCamX = 1.0;
       targetCamY = 0.15;
       targetCamZ = 2.2;
       lookAtY = 0.18;
     } else if (activeStep === 4) {
-      // Step 4 (Breakthrough): Sweeping wide upward angle
+      // Step 4 (Breakthrough): Sweeping low-angle upward dolly shot
       targetCamX = Math.sin(time * 0.8) * 0.8;
-      targetCamY = -0.4;
+      targetCamY = -0.45;
       targetCamZ = 3.3;
       lookAtY = 0.35;
     } else if (activeStep === 6) {
-      // Step 6 (Summary): Overhead golden rotation
+      // Step 6 (Summary): High golden rotating panoramic view
       targetCamX = Math.sin(time * 0.25) * 3.5;
       targetCamY = 1.1;
       targetCamZ = Math.cos(time * 0.25) * 3.5;
       lookAtY = -0.1;
     } else {
-      // Standard: Smooth floating pan
+      // Standard: Floating camera Operator glide
       const angle = time * 0.15;
       targetCamX = Math.sin(angle) * 3.3;
       targetCamY = 0.35 + Math.sin(time * 0.6) * 0.08;
@@ -409,7 +545,11 @@ function CameraController({ activeStep, reduced }: { activeStep: number; reduced
       lookAtY = 0.12;
     }
 
-    state.camera.position.lerp(new THREE.Vector3(targetCamX, targetCamY, targetCamZ), 0.035);
+    // Add real-time pointer operator offsets (makes the operator pivot visually reactive to mouse)
+    const activeCamX = targetCamX + mx * 0.45;
+    const activeCamY = targetCamY + my * 0.35;
+
+    state.camera.position.lerp(new THREE.Vector3(activeCamX, activeCamY, targetCamZ), 0.035);
     
     const lookTarget = new THREE.Vector3(0, lookAtY, 0);
     const currentLook = new THREE.Vector3(0, 0, -1).applyQuaternion(state.camera.quaternion).add(state.camera.position);
@@ -432,27 +572,46 @@ export default function GeneratorVisual3D({
     >
       <CameraController activeStep={activeStep} reduced={reduced} />
       
-      {/* High-quality key and backlighting for chrome metallic reflections */}
-      <ambientLight intensity={0.12} />
-      <directionalLight position={[5, 4, 5]} intensity={2.0} color="hsl(42, 100%, 65%)" />
-      <directionalLight position={[-5, 4, -5]} intensity={1.5} color="hsl(180, 100%, 60%)" />
+      {/* Cinematic Studio Lights */}
+      <ambientLight intensity={0.15} />
       
-      {/* Volumetric spotlight beam */}
+      {/* Key & Fill lighting */}
+      <directionalLight position={[5, 4, 5]} intensity={1.8} color="hsl(42, 100%, 65%)" />
+      <directionalLight position={[-5, 4, -5]} intensity={1.2} color="hsl(180, 100%, 60%)" />
+      
+      {/* HIGH-INTENSITY RIM BACKLIGHT FOR METALLIC HALO OUTLINES */}
+      <directionalLight position={[0, 2.5, -4]} intensity={3.5} color="#ffffff" />
+      
+      {/* Volumetric spotlight beam and particles */}
       <SpotlightCone activeStep={activeStep} />
       <AuditionSparks activeStep={activeStep} />
+      <AtmosphericDustMotes />
+      
+      {/* Step specific interactive elements */}
+      <BurningEmbers active={activeStep === 3} />
+      <PaparazziFlashes active={activeStep === 4} />
+      <FloatingScript active={activeStep === 2} />
+      <StageClapperboard active={activeStep === 0} />
       
       {/* Chrome Vintage Microphone */}
       <VintageMicrophone activeStep={activeStep} />
       
-      {/* Audition Props */}
-      <FloatingScript active={activeStep === 2} />
-      <StageClapperboard active={activeStep === 0} />
-      
-      {/* Circular wood stage floor */}
-      <mesh position={[0, -1.95, 0]}>
-        <cylinderGeometry args={[2.5, 2.5, 0.05, 32]} />
-        <meshStandardMaterial color="#0c0c0c" roughness={0.8} />
-      </mesh>
+      {/* Reflective stage floor with metal inlay details */}
+      <group position={[0, -1.95, 0]}>
+        <mesh>
+          <cylinderGeometry args={[2.5, 2.5, 0.05, 32]} />
+          <meshStandardMaterial color="#0b0b0b" roughness={0.7} metalness={0.2} />
+        </mesh>
+        {/* Metal Concentric Trim Rings */}
+        <mesh position={[0, 0.026, 0]}>
+          <torusGeometry args={[2.2, 0.008, 6, 32]} />
+          <meshStandardMaterial color="hsl(42, 100%, 55%)" roughness={0.1} metalness={1.0} />
+        </mesh>
+        <mesh position={[0, 0.026, 0]}>
+          <torusGeometry args={[1.5, 0.006, 6, 32]} />
+          <meshStandardMaterial color="hsl(42, 100%, 55%)" roughness={0.1} metalness={1.0} />
+        </mesh>
+      </group>
       
       {/* Floor Spotlight glow reflection pool */}
       <mesh position={[0, -1.92, 0]} rotation={[-Math.PI / 2, 0, 0]}>

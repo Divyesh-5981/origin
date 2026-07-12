@@ -10,8 +10,13 @@ const containerVariants: Variants = {
 };
 
 const itemVariants: Variants = {
-  hidden: { opacity: 0, filter: "blur(10px)", y: 20 },
-  visible: { opacity: 1, filter: "blur(0px)", y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } },
+  hidden: { opacity: 0, filter: 'blur(10px)', y: 20 },
+  visible: {
+    opacity: 1,
+    filter: 'blur(0px)',
+    y: 0,
+    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+  },
 };
 
 export function CTASection() {
@@ -25,9 +30,9 @@ export function CTASection() {
       {/* Cinematic Dust Particles */}
       {!prefersReducedMotion && (
         <div className="absolute inset-0 -z-10 overflow-hidden opacity-30">
-           {Array.from({ length: 20 }).map((_, i) => {
+          {Array.from({ length: 20 }).map((_, i) => {
             // Deterministic pseudo-random values based on index to avoid hydration mismatch
-            const leftPct = ((i * 37 + 13) % 100);
+            const leftPct = (i * 37 + 13) % 100;
             const topPct = 100 + ((i * 7 + 3) % 20);
             const duration = 5 + (i % 5);
             const delay = (i * 0.3) % 3;
@@ -39,12 +44,12 @@ export function CTASection() {
                 style={{
                   left: `${leftPct}%`,
                   top: `${topPct}%`,
-                  filter: 'blur(2px)'
+                  filter: 'blur(2px)',
                 }}
                 animate={{
                   y: [0, -800],
                   x: [0, xDrift],
-                  opacity: [0, 1, 0]
+                  opacity: [0, 1, 0],
                 }}
                 transition={{
                   duration,
@@ -59,7 +64,10 @@ export function CTASection() {
       )}
 
       {/* Cinematic Background Glow */}
-      <div className="pointer-events-none absolute left-1/2 top-1/2 -z-20 -translate-x-1/2 -translate-y-1/2 h-[400px] w-[800px] bg-ignition-orange/10 blur-[120px] rounded-full" aria-hidden />
+      <div
+        className="pointer-events-none absolute left-1/2 top-1/2 -z-20 -translate-x-1/2 -translate-y-1/2 h-[400px] w-[800px] bg-ignition-orange/10 blur-[120px] rounded-full"
+        aria-hidden
+      />
 
       <motion.div
         variants={containerVariants}
@@ -75,7 +83,7 @@ export function CTASection() {
           <span className="size-2 rounded-full bg-ignition-orange animate-pulse" />
           The Stage Is Set
         </motion.div>
-        
+
         <motion.h2
           id="cta-heading"
           className="mt-2 text-5xl font-medium tracking-tight text-foreground sm:text-7xl"
@@ -83,14 +91,15 @@ export function CTASection() {
         >
           Write Your Epic
         </motion.h2>
-        
+
         <motion.p
           className="mt-6 max-w-xl text-balance text-lg text-muted-foreground leading-relaxed"
           variants={itemVariants}
         >
-          Don't let your passion remain untold. Step into the spotlight and generate a cinematic origin story that commands the screen.
+          Don't let your passion remain untold. Step into the spotlight and
+          generate a cinematic origin story that commands the screen.
         </motion.p>
-        
+
         <motion.div variants={itemVariants} className="mt-12">
           <Link
             href="/create"

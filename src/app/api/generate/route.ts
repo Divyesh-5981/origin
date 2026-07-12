@@ -29,7 +29,7 @@ const nonEmptyString = z.string().trim().min(1);
 const answersSchema = z.object({
   name: nonEmptyString,
   profession: nonEmptyString,
-  country: z.string().trim().min(1).optional(),
+  country: z.string().trim().optional(),
   passion: nonEmptyString,
   originMoment: nonEmptyString,
   lowestPoint: nonEmptyString,

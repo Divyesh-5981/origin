@@ -195,9 +195,7 @@ export function ByokSettings() {
               <p className="text-caption text-muted-foreground">
                 When provided, your story is generated using Google AI for
                 richer, more personalized output. Without a key, our instant
-                heuristic engine crafts your story. Your key is stored locally
-                in your browser and never sent to our servers beyond the
-                generation request.
+                heuristic engine crafts your story.
               </p>
 
               <div className="flex gap-2">

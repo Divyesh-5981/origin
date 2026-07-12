@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
 import { AppProviders } from '@/components/providers/app-providers';
+import { Header } from '@/components/shared/header';
+import { Footer } from '@/components/shared/footer';
 import { isClerkConfigured } from '@/lib/auth/clerk-config';
 import './globals.css';
 
@@ -19,6 +21,11 @@ export const metadata: Metadata = {
   description:
     'Origin transforms a few personal answers into a cinematic, interactive origin story you can share with the world.',
   applicationName: 'Origin',
+  icons: {
+    icon: [{ url: '/favicon.svg', type: 'image/svg+xml' }],
+    shortcut: ['/favicon.svg'],
+    apple: [{ url: '/favicon.svg' }],
+  },
   keywords: [
     'origin story',
     'cinematic',
@@ -72,10 +79,18 @@ export default function RootLayout({
         </a>
         {isClerkConfigured() ? (
           <ClerkProvider>
-            <AppProviders>{children}</AppProviders>
+            <AppProviders>
+              <Header />
+              {children}
+              <Footer />
+            </AppProviders>
           </ClerkProvider>
         ) : (
-          <AppProviders>{children}</AppProviders>
+          <AppProviders>
+            <Header />
+            {children}
+            <Footer />
+          </AppProviders>
         )}
       </body>
     </html>

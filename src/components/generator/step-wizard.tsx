@@ -296,8 +296,14 @@ export function StepWizard() {
         </div>
 
         {/* Right column: Form */}
-        <div className="flex flex-1 flex-col items-center justify-center p-6 sm:p-12 lg:p-16 overflow-y-auto z-30">
-          <div className="w-full max-w-xl flex flex-col gap-6">
+        <div className="flex flex-1 flex-col items-center justify-center p-6 sm:p-12 lg:p-16 overflow-y-auto z-30 relative bg-black/45">
+          {/* Ambient glowing blobs behind the form card to highlight frosted glass refractions */}
+          <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden>
+            <div className="absolute top-[25%] left-[25%] size-[280px] rounded-full bg-ignition-orange/5 blur-[100px] animate-pulse" />
+            <div className="absolute bottom-[25%] right-[25%] size-[320px] rounded-full bg-electric-cyan/5 blur-[120px] animate-pulse" />
+          </div>
+
+          <div className="w-full max-w-xl flex flex-col gap-6 relative z-10">
             {/* Progress bar */}
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between text-caption text-muted-foreground">
@@ -307,7 +313,7 @@ export function StepWizard() {
                 <span className="font-bold uppercase tracking-wider text-electric-cyan">{definition.title}</span>
               </div>
               <div
-                className="relative h-1.5 w-full overflow-hidden rounded-full bg-muted"
+                className="relative h-1.5 w-full overflow-hidden rounded-full bg-white/5 border border-white/5"
                 role="progressbar"
                 aria-valuemin={1}
                 aria-valuemax={STEP_COUNT}
@@ -315,7 +321,7 @@ export function StepWizard() {
                 aria-label="Generator progress"
               >
                 <motion.div
-                  className="h-full rounded-full bg-gradient-to-r from-ignition-orange to-electric-cyan shadow-glow-orange"
+                  className="h-full rounded-full bg-gradient-to-r from-ignition-orange to-electric-cyan shadow-[0_0_10px_rgba(0,255,255,0.4)]"
                   initial={false}
                   animate={{
                     width: `${((activeStep + 1) / STEP_COUNT) * 100}%`,
@@ -328,7 +334,7 @@ export function StepWizard() {
             {draftRecovered ? (
               <div
                 role="status"
-                className="rounded-lg border border-border bg-surface-elevated px-4 py-3 text-caption text-muted-foreground"
+                className="rounded-lg border border-white/5 bg-white/5 px-4 py-3 text-caption text-muted-foreground"
               >
                 We couldn&apos;t restore your previous draft, so we started fresh.
               </div>
@@ -350,7 +356,7 @@ export function StepWizard() {
                       variant="outline"
                       size="sm"
                       onClick={() =>
-                        setActiveStep(clampStepIndex(FIELD_STEP_INDEX[field] ?? 0))
+                         setActiveStep(clampStepIndex(FIELD_STEP_INDEX[field] ?? 0))
                       }
                     >
                       Edit {FIELD_LABEL[field]}
@@ -375,7 +381,7 @@ export function StepWizard() {
                 transition={{ duration: 0.4, ease: 'easeOut' }}
                 className="flex flex-col gap-2 text-left"
               >
-                <h1 className="font-heading text-4xl font-medium tracking-tight text-foreground">
+                <h1 className="font-heading text-4xl font-medium tracking-tight text-white">
                   {definition.title}
                 </h1>
                 <p className="text-sm text-muted-foreground">
@@ -384,7 +390,7 @@ export function StepWizard() {
               </motion.div>
             </AnimatePresence>
 
-            <GlassCard className="p-6 sm:p-8 relative">
+            <GlassCard className="p-6 sm:p-8 relative border-white/10">
               <div className="pointer-events-none absolute inset-0 z-0 bg-film-grain mix-blend-overlay opacity-10 rounded-2xl" />
               <div className="relative z-10">
                 <AnimatePresence mode="wait">
@@ -411,23 +417,24 @@ export function StepWizard() {
 
             <div className="flex items-center justify-between gap-4 mt-4">
               <Button
-                variant="ghost"
+                variant="outline"
                 onClick={handleBack}
                 disabled={activeStep === 0}
+                className="border-white/10 bg-white/5 hover:bg-white/10 hover:text-white"
               >
-                <ArrowLeft className="size-4" aria-hidden />
+                <ArrowLeft className="size-4 mr-1.5" aria-hidden />
                 Back
               </Button>
 
               {isLastStep ? (
-                <Button onClick={handleGenerate} disabled={!generationEnabled}>
-                  <Sparkles className="size-4" aria-hidden />
+                <Button onClick={handleGenerate} disabled={!generationEnabled} className="bg-primary text-primary-foreground hover:bg-primary/95 shadow-ignition">
+                  <Sparkles className="size-4 mr-1.5" aria-hidden />
                   Generate my story
                 </Button>
               ) : (
-                <Button onClick={handleNext} disabled={!canAdvanceStep}>
+                <Button onClick={handleNext} disabled={!canAdvanceStep} className="bg-primary text-primary-foreground hover:bg-primary/95 shadow-ignition">
                   Next
-                  <ArrowRight className="size-4" aria-hidden />
+                  <ArrowRight className="size-4 ml-1.5" aria-hidden />
                 </Button>
               )}
             </div>

@@ -14,28 +14,58 @@ function countWords(text: string): number {
   return text.trim().split(/\s+/).filter(Boolean).length;
 }
 
+// Helper to resolve singular/plural descriptors for passions
+function parsePassions(passionStr: string) {
+  const rawItems = (passionStr || "").split(",").map((p) => p.trim()).filter(Boolean);
+  const items = rawItems.length > 0 ? rawItems : ["their craft"];
+  const isPlural = items.length > 1;
+
+  let formatted = items[0];
+  if (items.length === 2) {
+    formatted = `${items[0]} and ${items[1]}`;
+  } else if (items.length > 2) {
+    formatted = `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
+  }
+
+  const hashtags = items.map((p) => `#${p.replace(/\s+/g, "")}`).join(" ");
+
+  return {
+    isPlural,
+    formatted,
+    hashtags,
+    label: isPlural ? "passions" : "passion",
+    verbIs: isPlural ? "are" : "is",
+    verbWas: isPlural ? "were" : "was",
+    nounHobby: isPlural ? "hobbies" : "hobby",
+    pronounIts: isPlural ? "their" : "its",
+    pronounIt: isPlural ? "them" : "it",
+  };
+}
+
 function buildOriginStory(answers: Answers): string {
   const name = value(answers.name, "The Dreamer");
   const profession = value(answers.profession, "creator");
-  const passion = value(answers.passion, "their craft");
+  const passionRaw = value(answers.passion, "their craft");
   const origin = value(answers.originMoment, "a quiet, ordinary afternoon");
   const lowest = value(answers.lowestPoint, "a season of doubt");
   const turning = value(answers.turningPoint, "a single decisive moment");
   const dream = value(answers.dream, "a future worth building");
   const oneSentence = value(answers.oneSentence, "someone who refuses to quit");
 
+  const pData = parsePassions(passionRaw);
+
   const paragraphs: string[] = [
-    `Every origin begins before the world is watching, and ${name}'s begins with ${origin}. There was no audience, no applause, only a spark of curiosity that would refuse to fade. What looked like an ordinary beginning was in truth the first frame of a much larger story, the moment a passion for ${passion} quietly took root.`,
-    `${name} would come to be known as a ${profession}, but titles never tell the whole truth. Beneath the label lived a relentless questioner, someone who saw ${passion} not as a task but as a language, a way of shaping meaning from raw possibility. Each early attempt was clumsy, each result imperfect, yet every failure carried a lesson that sharpened the next attempt.`,
-    `The path was never smooth. ${name} arrived at ${lowest}, the kind of low point that tests whether a passion is a fleeting hobby or a calling. Doubt spoke loudly in those days. It whispered that the dream was too large, the odds too steep, the effort unlikely to matter. Many would have stopped there, and no one would have blamed them.`,
+    `Every origin begins before the world is watching, and ${name}'s begins with ${origin}. There was no audience, no applause, only a spark of curiosity that would refuse to fade. What looked like an ordinary beginning was in truth the first frame of a much larger story, the moment a passion for ${pData.formatted} quietly took root.`,
+    `${name} would come to be known as a ${profession}, but titles never tell the whole truth. Beneath the label lived a relentless questioner, someone who saw ${pData.formatted} not as a task but as a language, a way of shaping meaning from raw possibility. Each early attempt was clumsy, each result imperfect, yet every failure carried a lesson that sharpened the next attempt.`,
+    `The path was never smooth. ${name} arrived at ${lowest}, the kind of low point that tests whether ${pData.label} ${pData.verbIs} a fleeting ${pData.nounHobby} or a calling. Doubt spoke loudly in those days. It whispered that the dream was too large, the odds too steep, the effort unlikely to matter. Many would have stopped there, and no one would have blamed them.`,
     `But endings disguised as setbacks are often just intermissions. ${turning} changed everything. It was not a lightning strike so much as a slow dawn, a realization that the struggle itself was forging exactly the resilience the dream required. ${name} chose to continue, and that choice rewrote the trajectory of everything that followed.`,
-    `From that turning point forward, ${passion} became less about proving something and more about building something. Skill compounded. Small wins stacked into momentum. The work that once felt impossible became a craft practiced with intention, and the ${profession} the world would recognize began to take clear shape.`,
+    `From that turning point forward, ${pData.formatted} became less about proving something and more about building something. Skill compounded. Small wins stacked into momentum. The work that once felt impossible became a craft practiced with intention, and the ${profession} the world would recognize began to take clear shape.`,
     `Today, ${name} carries the whole arc forward: the humble start, the trial, the breakthrough. The story is not a monument to talent but a testament to persistence, a reminder that ${oneSentence}. What began as a private spark now lights a path others can follow.`,
     `And the horizon still calls. ${name} looks toward ${dream}, not as a finish line but as the next chapter. The origin was never about arriving; it was about becoming. Every lesson, every stumble, every quiet victory was preparation for the story still being written.`,
   ];
 
   const fillerSentences = [
-    `The pursuit of ${passion} demanded patience on the days when progress felt invisible.`,
+    `The pursuit of ${pData.formatted} demanded patience on the days when progress felt invisible.`,
     `${name} learned that discipline outlasts motivation, and that showing up is its own quiet triumph.`,
     `There were mentors who offered a word at the right moment, and setbacks that offered lessons no mentor could.`,
     `Each obstacle reframed the goal, turning a distant ambition into a series of achievable steps.`,
@@ -43,7 +73,7 @@ function buildOriginStory(answers: Answers): string {
     `Belief, ${name} discovered, is not a feeling that arrives fully formed but a habit practiced daily.`,
     `Even in the shadow of ${lowest}, small acts of courage kept the dream of ${dream} alive.`,
     `Progress came in uneven waves, and ${name} learned to trust the direction even when the pace disappointed.`,
-    `What others mistook for luck was the quiet residue of countless unseen hours devoted to ${passion}.`,
+    `What others mistook for luck was the quiet residue of countless unseen hours devoted to ${pData.formatted}.`,
     `The story of ${name} is proof that ordinary beginnings can carry extraordinary momentum.`,
   ];
 
@@ -58,13 +88,15 @@ function buildOriginStory(answers: Answers): string {
 
 export function buildMockStory(answers: Answers): Story {
   const name = value(answers.name, "The Dreamer");
-  const passion = value(answers.passion, "their craft");
+  const passionRaw = value(answers.passion, "their craft");
   const profession = value(answers.profession, "creator");
   const dream = value(answers.dream, "a future worth building");
 
+  const pData = parsePassions(passionRaw);
+
   return {
-    heroTitle: `${name}: The ${passion} Origin`,
-    tagline: `Every legend of ${passion} begins with a single spark.`,
+    heroTitle: `${name}: The ${pData.formatted} Origin`,
+    tagline: `Every legend of ${pData.formatted} begins with a single spark.`,
     originStory: buildOriginStory(answers),
     timeline: [
       {
@@ -72,7 +104,7 @@ export function buildMockStory(answers: Answers): Story {
         title: "The Spark",
         body: value(
           answers.originMoment,
-          `Where ${name}'s passion for ${passion} first took root.`,
+          `Where ${name}'s ${pData.label} for ${pData.formatted} first took root.`,
         ),
       },
       {
@@ -80,7 +112,7 @@ export function buildMockStory(answers: Answers): Story {
         title: "The Trial",
         body: value(
           answers.lowestPoint,
-          "A low point that tested the dream.",
+          `A low point that tested whether the ${pData.label} ${pData.verbWas} a ${pData.nounHobby} or a calling.`,
         ),
       },
       {
@@ -103,29 +135,29 @@ export function buildMockStory(answers: Answers): Story {
       },
     ],
     character: {
-      mission: `To master ${passion} and turn it into something that outlasts ${name}.`,
+      mission: `To master ${pData.formatted} and turn ${pData.pronounIt} into something that outlasts ${name}.`,
       strengths: ["Relentless curiosity", "Resilience", "Craftsmanship"],
       weaknesses: ["Impatience with slow progress", "A tendency to overwork"],
       motivation: `The belief that ${dream} is worth every difficult step.`,
       coreValues: ["Growth", "Authenticity", "Perseverance"],
     },
     quote: `The origin was never about arriving. It was about becoming.`,
-    trailerScript: `In a world of easy shortcuts, one ${profession} chose the harder, truer path. This is the story of ${name} — and a passion for ${passion} that refused to fade.`,
+    trailerScript: `In a world of easy shortcuts, one ${profession} chose the harder, truer path. This is the story of ${name} — and a ${pData.label} for ${pData.formatted} that refused to fade.`,
     social: {
-      linkedin: `My origin story: how a passion for ${passion} shaped my path as a ${profession}, from the first spark to the dream of ${dream}.`,
+      linkedin: `My origin story: how a ${pData.label} for ${pData.formatted} shaped my path as a ${profession}, from the first spark to the dream of ${dream}.`,
       twitterThread: [
-        `1/ Everyone has an origin story. Here's mine, built around ${passion}. 🧵`,
+        `1/ Everyone has an origin story. Here's mine, built around ${pData.formatted}. 🧵`,
         `2/ It started small and survived the low points. The turning point changed everything.`,
         `3/ Today I'm chasing one dream: ${dream}.`,
       ],
-      instagram: `Every legend begins somewhere. This is where mine began. ✨ #${passion.replace(/\s+/g, "")}`,
-      portfolioBio: `${name} is a ${profession} driven by a lifelong passion for ${passion}, working toward ${dream}.`,
-      resumeSummary: `${profession} with a proven record of turning curiosity about ${passion} into lasting results.`,
+      instagram: `Every legend begins somewhere. This is where mine began. ✨ ${pData.hashtags}`,
+      portfolioBio: `${name} is a ${profession} driven by a lifelong ${pData.label} for ${pData.formatted}, working toward ${dream}.`,
+      resumeSummary: `${profession} with a proven record of turning curiosity about ${pData.formatted} into lasting results.`,
     },
     poster: {
       ...POSTER_DEFAULTS,
       title: name,
-      subtitle: `A ${passion} Origin Story`,
+      subtitle: `A ${pData.formatted} Origin Story`,
     },
     inferredContent: [
       "Character strengths, weaknesses, and values",
