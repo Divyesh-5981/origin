@@ -8,71 +8,74 @@ import {
   useTransform,
   useReducedMotion,
 } from 'motion/react';
-import { Flame } from 'lucide-react';
+import { Sparkles, Star, Zap, Shield, Heart } from 'lucide-react';
 import { useRenderMode } from '@/components/providers/capability-provider';
 import { SceneErrorBoundary } from '@/components/shared/scene-error-boundary';
-import { GlassCard } from '@/components/ui/glass-card';
 import type { CharacterProfile } from '@/lib/core/story-schema';
 import { cn } from '@/lib/utils';
 
 const MAX_TILT_DEGREES = 12;
 
-function TraitGroup({ label, items }: { label: string; items: string[] }) {
+function StatRow({ label, items, icon: Icon, colorClass }: { label: string; items: string[], icon: any, colorClass: string }) {
+  if (!items || items.length === 0) return null;
   return (
-    <div className="flex flex-col gap-2">
-      <p className="text-caption font-medium uppercase tracking-wider text-muted-foreground">
-        {label}
-      </p>
-      <ul className="flex flex-wrap gap-2">
+    <div className="flex flex-col gap-1.5 border-b border-white/5 pb-3">
+      <div className="flex items-center gap-2">
+        <Icon className={cn("size-3.5", colorClass)} />
+        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          {label}
+        </p>
+      </div>
+      <div className="flex flex-wrap gap-1.5">
         {items.map((item, index) => (
-          <motion.li
+          <span
             key={index}
-            whileHover={{ scale: 1.05 }}
-            className="rounded-full border border-border/60 bg-surface-elevated/80 px-3 py-1 text-caption text-foreground backdrop-blur-sm"
+            className="rounded-full bg-white/5 px-2 py-0.5 text-xs font-medium text-foreground border border-white/10"
           >
             {item}
-          </motion.li>
+          </span>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
 
 function CardBody({ character }: { character: CharacterProfile }) {
   return (
-    <div className="relative z-10 flex flex-col gap-6">
-      {/* Header with flame icon */}
-      <div className="flex items-center gap-3 border-b border-border/40 pb-4">
-        <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-          <Flame className="size-5" aria-hidden />
-        </div>
-        <div>
-          <p className="text-caption font-medium uppercase tracking-wider text-primary">
-            Character Profile
-          </p>
-          <p className="text-caption text-muted-foreground">
-            Your story persona
-          </p>
-        </div>
+    <div className="relative z-10 flex h-full flex-col p-6">
+      {/* Header - Cinematic Cast Style */}
+      <div className="flex flex-col border-b border-white/10 pb-4">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-electric-cyan mb-1">
+          Subject File // Origin Profile
+        </span>
+        <h3 className="font-heading text-2xl font-medium tracking-tight text-foreground">
+          {character.mission || "The Protagonist"}
+        </h3>
       </div>
 
-      <div>
-        <p className="text-caption font-medium uppercase tracking-wider text-primary">
-          Mission
-        </p>
-        <p className="mt-1 text-body-lg text-foreground">{character.mission}</p>
+      {/* Abstract Holographic HUD area */}
+      <div className="my-4 h-32 w-full rounded-lg border border-white/10 bg-black/40 flex items-center justify-center overflow-hidden relative">
+         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,240,255,0.15)_0%,transparent_70%)]" />
+         <div className="absolute inset-0 bg-film-grain mix-blend-overlay opacity-50" />
+         <div className="absolute top-1/2 left-0 w-full h-[1px] bg-electric-cyan/20" />
+         <div className="absolute top-0 left-1/2 w-[1px] h-full bg-electric-cyan/20" />
+         <Sparkles className="size-8 text-electric-cyan opacity-80" />
       </div>
-      <div className="grid gap-6 sm:grid-cols-2">
-        <TraitGroup label="Strengths" items={character.strengths} />
-        <TraitGroup label="Weaknesses" items={character.weaknesses} />
+
+      {/* Stats Grid */}
+      <div className="flex flex-col gap-3 flex-1">
+        <StatRow label="Core Strengths" items={character.strengths} icon={Zap} colorClass="text-ignition-orange" />
+        <StatRow label="Vulnerabilities" items={character.weaknesses} icon={Shield} colorClass="text-electric-cyan" />
+        <StatRow label="Guiding Values" items={character.coreValues} icon={Heart} colorClass="text-white" />
       </div>
-      <TraitGroup label="Core values" items={character.coreValues} />
-      <div>
-        <p className="text-caption font-medium uppercase tracking-wider text-muted-foreground">
-          Motivation
+
+      {/* Motivation Footer */}
+      <div className="mt-4 rounded-lg bg-ignition-orange/10 p-3 border border-ignition-orange/20">
+        <p className="text-[9px] font-bold uppercase tracking-widest text-ignition-orange mb-1">
+          Primary Motivation
         </p>
-        <p className="mt-1 text-body text-muted-foreground">
-          {character.motivation}
+        <p className="text-xs font-medium text-foreground/90 italic">
+          &quot;{character.motivation}&quot;
         </p>
       </div>
     </div>
@@ -80,64 +83,27 @@ function CardBody({ character }: { character: CharacterProfile }) {
 }
 
 const CARD_CLASSNAME =
-  'relative overflow-hidden rounded-2xl border border-border/60 bg-card/60 backdrop-blur-xl p-6 shadow-elevated sm:p-8';
+  'relative mx-auto w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-black/60 shadow-2xl backdrop-blur-xl transition-transform duration-300';
 
-/** Animated golden thread border that draws on mount */
-function ThreadBorder() {
-  const prefersReducedMotion = useReducedMotion();
-  return (
-    <svg
-      className="pointer-events-none absolute inset-0 size-full"
-      viewBox="0 0 100 100"
-      preserveAspectRatio="none"
-      aria-hidden
-    >
-      <defs>
-        <linearGradient id="card-thread" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="hsl(var(--thread))" stopOpacity="0.6" />
-          <stop offset="50%" stopColor="hsl(var(--spark))" stopOpacity="0.8" />
-          <stop offset="100%" stopColor="hsl(var(--ember))" stopOpacity="0.4" />
-        </linearGradient>
-      </defs>
-      <motion.rect
-        x="0.5"
-        y="0.5"
-        width="99"
-        height="99"
-        rx="2"
-        fill="none"
-        stroke="url(#card-thread)"
-        strokeWidth="0.5"
-        initial={prefersReducedMotion ? undefined : { pathLength: 0 }}
-        animate={prefersReducedMotion ? undefined : { pathLength: 1 }}
-        transition={{ duration: 2, ease: 'easeInOut' }}
-      />
-    </svg>
-  );
-}
-
-function StaticCard({ character }: { character: CharacterProfile }) {
-  return (
-    <GlassCard className={cn(CARD_CLASSNAME, 'p-6 sm:p-8')}>
-      <ThreadBorder />
-      <CardBody character={character} />
-    </GlassCard>
-  );
-}
-
-function TiltCard({ character }: { character: CharacterProfile }) {
+function CinematicCard({ character }: { character: CharacterProfile }) {
   const prefersReducedMotion = useReducedMotion();
   const rotateXValue = useMotionValue(0);
   const rotateYValue = useMotionValue(0);
-  const rotateX = useSpring(rotateXValue, { stiffness: 200, damping: 20 });
-  const rotateY = useSpring(rotateYValue, { stiffness: 200, damping: 20 });
-  const glareX = useTransform(
-    rotateY,
-    [-MAX_TILT_DEGREES, MAX_TILT_DEGREES],
-    ['0%', '100%'],
+  
+  const rotateX = useSpring(rotateXValue, { stiffness: 200, damping: 40 });
+  const rotateY = useSpring(rotateYValue, { stiffness: 200, damping: 40 });
+  
+  const glareX = useTransform(rotateY, [-MAX_TILT_DEGREES, MAX_TILT_DEGREES], ['0%', '100%']);
+  const glareY = useTransform(rotateX, [-MAX_TILT_DEGREES, MAX_TILT_DEGREES], ['100%', '0%']);
+  
+  const filmOpacity = useTransform(
+    rotateYValue,
+    [-MAX_TILT_DEGREES, 0, MAX_TILT_DEGREES],
+    [0.7, 0.2, 0.7]
   );
 
   const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (prefersReducedMotion) return;
     const bounds = event.currentTarget.getBoundingClientRect();
     const relativeX = (event.clientX - bounds.left) / bounds.width - 0.5;
     const relativeY = (event.clientY - bounds.top) / bounds.height - 0.5;
@@ -146,6 +112,7 @@ function TiltCard({ character }: { character: CharacterProfile }) {
   };
 
   const handlePointerLeave = () => {
+    if (prefersReducedMotion) return;
     rotateXValue.set(0);
     rotateYValue.set(0);
   };
@@ -154,47 +121,28 @@ function TiltCard({ character }: { character: CharacterProfile }) {
     <motion.div
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
-      style={{ rotateX, rotateY, transformPerspective: 1000 }}
-      className={cn(CARD_CLASSNAME, 'will-change-transform')}
+      style={{ rotateX, rotateY, transformPerspective: 1200 }}
+      className={cn(CARD_CLASSNAME, 'will-change-transform group')}
     >
-      <ThreadBorder />
-      {/* Glare overlay */}
+      {/* Cinematic Film Grain & Glare overlay */}
       <motion.div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-40"
+        className="pointer-events-none absolute inset-0 z-20 mix-blend-screen transition-opacity duration-300"
         style={{
+          opacity: prefersReducedMotion ? 0 : filmOpacity,
           background: useTransform(
-            glareX,
-            (value) =>
-              `radial-gradient(circle at ${value} 0%, hsl(var(--spark) / 0.25), transparent 60%)`,
+            () =>
+              `radial-gradient(circle at ${glareX.get()} ${glareY.get()}, rgba(0,240,255,0.15), rgba(255,69,0,0.1) 40%, transparent 70%)`
           ),
         }}
       />
-      {/* Ambient particles */}
-      {!prefersReducedMotion
-        ? Array.from({ length: 5 }).map((_, i) => (
-            <motion.span
-              key={i}
-              aria-hidden
-              className="absolute size-1 rounded-full bg-spark"
-              style={{
-                left: `${15 + i * 18}%`,
-                top: `${20 + (i % 3) * 25}%`,
-                boxShadow: '0 0 4px hsl(var(--spark))',
-              }}
-              animate={{
-                y: [0, -15, 0],
-                opacity: [0, 0.6, 0],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                delay: i * 0.5,
-                ease: 'easeInOut',
-              }}
-            />
-          ))
-        : null}
+      
+      {/* Base film grain texture */}
+      <div className="pointer-events-none absolute inset-0 z-0 bg-film-grain mix-blend-overlay opacity-30" />
+
+      {/* Edge lighting effect */}
+      <div className="pointer-events-none absolute inset-0 z-30 rounded-2xl border border-white/5 shadow-[inset_0_0_20px_rgba(255,255,255,0.05)]" />
+
       <CardBody character={character} />
     </motion.div>
   );
@@ -202,9 +150,9 @@ function TiltCard({ character }: { character: CharacterProfile }) {
 
 function ErrorPlaceholder() {
   return (
-    <div className={cn(CARD_CLASSNAME, 'text-center')}>
-      <p className="text-body text-muted-foreground">
-        The character visualization couldn&apos;t be displayed.
+    <div className={cn(CARD_CLASSNAME, 'flex min-h-[400px] items-center justify-center p-8 text-center')}>
+      <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest">
+        Profile Data Unavailable
       </p>
     </div>
   );
@@ -218,12 +166,16 @@ export function CharacterCard3D({
   const renderMode = useRenderMode(true);
 
   if (renderMode === '2d-fallback') {
-    return <StaticCard character={character} />;
+    return (
+      <div className={cn(CARD_CLASSNAME)}>
+        <CardBody character={character} />
+      </div>
+    );
   }
 
   return (
     <SceneErrorBoundary fallback={<ErrorPlaceholder />}>
-      <TiltCard character={character} />
+      <CinematicCard character={character} />
     </SceneErrorBoundary>
   );
 }

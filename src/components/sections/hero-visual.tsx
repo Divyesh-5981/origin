@@ -1,5 +1,6 @@
 "use client";
 
+import type { MotionValue } from "motion/react";
 import { useRenderMode } from "@/components/providers/capability-provider";
 import {
   createDynamicScene,
@@ -17,7 +18,11 @@ function HeroFallback() {
   return <FallbackScene variant="landing" className={FALLBACK_CLASSNAME} />;
 }
 
-export function HeroVisual() {
+interface HeroVisualProps {
+  scrollProgress?: MotionValue<number>;
+}
+
+export function HeroVisual({ scrollProgress }: HeroVisualProps) {
   const renderMode = useRenderMode(true);
 
   if (renderMode === "2d-fallback") {
@@ -27,7 +32,7 @@ export function HeroVisual() {
   return (
     <DynamicScene
       component={HeroScene3D}
-      sceneProps={{ reduced: renderMode === "3d-reduced" }}
+      sceneProps={{ reduced: renderMode === "3d-reduced", scrollProgress }}
       fallback={<HeroFallback />}
     />
   );

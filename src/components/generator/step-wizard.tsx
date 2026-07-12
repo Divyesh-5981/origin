@@ -36,6 +36,8 @@ import { TurningPointStep } from '@/components/generator/steps/turning-point-ste
 import { DreamStep } from '@/components/generator/steps/dream-step';
 import { OneSentenceStep } from '@/components/generator/steps/one-sentence-step';
 import { ByokSettings } from '@/components/generator/byok-settings';
+import { GeneratorVisual } from '@/components/generator/generator-visual';
+
 interface StepDefinition {
   type: StepType;
   title: string;
@@ -249,127 +251,115 @@ export function StepWizard() {
 
   return (
     <FormProvider {...form}>
-      <div className="mx-auto flex w-full max-w-2xl flex-col gap-8">
-        {/* Ignition progress bar */}
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between text-caption text-muted-foreground">
-            <span>
-              Step {activeStep + 1} of {STEP_COUNT}
-            </span>
-            <span>{definition.title}</span>
-          </div>
-          <div
-            className="relative h-2 w-full overflow-hidden rounded-full bg-muted"
-            role="progressbar"
-            aria-valuemin={1}
-            aria-valuemax={STEP_COUNT}
-            aria-valuenow={activeStep + 1}
-            aria-label="Generator progress"
-          >
-            <motion.div
-              className="h-full rounded-full bg-gradient-cinematic shadow-ignition"
-              initial={false}
-              animate={{
-                width: `${((activeStep + 1) / STEP_COUNT) * 100}%`,
-              }}
-              transition={{ duration: 0.5, ease: 'easeOut' }}
-            />
-            {/* Spark nodes for completed steps */}
-            <div className="absolute inset-0 flex items-center">
-              {Array.from({ length: STEP_COUNT }).map((_, i) => (
-                <div
-                  key={i}
-                  className="relative flex-1 flex justify-center"
-                  aria-hidden
-                >
-                  <motion.span
-                    className="size-2 rounded-full"
-                    style={{
-                      background:
-                        i <= activeStep
-                          ? 'hsl(var(--spark))'
-                          : 'hsl(var(--muted-foreground) / 0.3)',
-                      boxShadow:
-                        i < activeStep ? '0 0 8px hsl(var(--spark))' : 'none',
-                    }}
-                    animate={
-                      i === activeStep
-                        ? { scale: [1, 1.4, 1], opacity: [0.8, 1, 0.8] }
-                        : undefined
-                    }
-                    transition={
-                      i === activeStep
-                        ? { duration: 1.5, repeat: Infinity, ease: 'easeInOut' }
-                        : undefined
-                    }
-                  />
-                </div>
-              ))}
+      <div className="relative flex min-h-screen w-full flex-col lg:flex-row bg-background overflow-hidden">
+        {/* Left column: 3D viewport */}
+        <div className="relative h-[38vh] w-full lg:h-screen lg:w-[42%] border-b lg:border-b-0 lg:border-r border-white/10 bg-black/30 overflow-hidden">
+          <div className="pointer-events-none absolute inset-0 z-20 bg-film-grain mix-blend-overlay opacity-25" />
+          <div className="pointer-events-none absolute inset-0 z-20 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.8)_100%)]" />
+          
+          {/* Director's Camera Viewfinder HUD */}
+          <div className="absolute inset-0 z-20 pointer-events-none p-4 flex flex-col justify-between font-mono text-[9px] text-white/40 tracking-wider">
+            {/* Top row */}
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-1.5">
+                <span className="size-1.5 rounded-full bg-red-600 animate-pulse" />
+                <span className="font-bold text-white/70">REC</span>
+              </div>
+              <div className="text-[10px]">TC 00:04:12:18</div>
             </div>
+
+            {/* Viewfinder Crop Marks */}
+            <div className="absolute inset-8 border border-white/5 border-dashed pointer-events-none">
+              <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-white/20" />
+              <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-white/20" />
+              <div className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-white/20" />
+              <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-white/20" />
+            </div>
+
+            {/* Center grid line crosshair */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none size-4 opacity-30">
+              <div className="absolute top-2 left-0 w-4 h-[1px] bg-white" />
+              <div className="absolute top-0 left-2 w-[1px] h-4 bg-white" />
+            </div>
+
+            {/* Bottom row */}
+            <div className="flex justify-between items-center text-[8px]">
+              <div>4K ProRes 422</div>
+              <div>50mm f/2.8</div>
+              <div>ISO 400</div>
+            </div>
+          </div>
+
+          <div className="absolute inset-0 z-10">
+            <GeneratorVisual activeStep={activeStep} />
           </div>
         </div>
 
-        {draftRecovered ? (
-          <div
-            role="status"
-            className="rounded-lg border border-border bg-surface-elevated px-4 py-3 text-caption text-muted-foreground"
-          >
-            We couldn&apos;t restore your previous draft, so we started fresh.
-          </div>
-        ) : null}
-
-        {contradictionFields.length > 0 ? (
-          <div
-            role="alert"
-            className="flex flex-col gap-3 rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-3"
-          >
-            <p className="text-caption text-foreground">
-              A few answers look identical. Make them distinct so your story
-              stays coherent.
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {contradictionFields.map((field) => (
-                <Button
-                  key={field}
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    setActiveStep(clampStepIndex(FIELD_STEP_INDEX[field] ?? 0))
-                  }
-                >
-                  Edit {FIELD_LABEL[field]}
-                </Button>
-              ))}
+        {/* Right column: Form */}
+        <div className="flex flex-1 flex-col items-center justify-center p-6 sm:p-12 lg:p-16 overflow-y-auto z-30">
+          <div className="w-full max-w-xl flex flex-col gap-6">
+            {/* Progress bar */}
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between text-caption text-muted-foreground">
+                <span>
+                  Step {activeStep + 1} of {STEP_COUNT}
+                </span>
+                <span className="font-bold uppercase tracking-wider text-electric-cyan">{definition.title}</span>
+              </div>
+              <div
+                className="relative h-1.5 w-full overflow-hidden rounded-full bg-muted"
+                role="progressbar"
+                aria-valuemin={1}
+                aria-valuemax={STEP_COUNT}
+                aria-valuenow={activeStep + 1}
+                aria-label="Generator progress"
+              >
+                <motion.div
+                  className="h-full rounded-full bg-gradient-to-r from-ignition-orange to-electric-cyan shadow-glow-orange"
+                  initial={false}
+                  animate={{
+                    width: `${((activeStep + 1) / STEP_COUNT) * 100}%`,
+                  }}
+                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                />
+              </div>
             </div>
-          </div>
-        ) : null}
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={stepType}
-            initial={
-              prefersReducedMotion ? { opacity: 0 } : { opacity: 0, x: 20 }
-            }
-            animate={
-              prefersReducedMotion ? { opacity: 1 } : { opacity: 1, x: 0 }
-            }
-            exit={
-              prefersReducedMotion ? { opacity: 0 } : { opacity: 0, x: -20 }
-            }
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="flex flex-col gap-2 text-center"
-          >
-            <h1 className="font-heading text-heading text-foreground">
-              {definition.title}
-            </h1>
-            <p className="text-body text-muted-foreground">
-              {definition.subtitle}
-            </p>
-          </motion.div>
-        </AnimatePresence>
+            {draftRecovered ? (
+              <div
+                role="status"
+                className="rounded-lg border border-border bg-surface-elevated px-4 py-3 text-caption text-muted-foreground"
+              >
+                We couldn&apos;t restore your previous draft, so we started fresh.
+              </div>
+            ) : null}
 
-        <GlassCard className="p-6 sm:p-8">
-          <div className="relative z-10">
+            {contradictionFields.length > 0 ? (
+              <div
+                role="alert"
+                className="flex flex-col gap-3 rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-3"
+              >
+                <p className="text-caption text-foreground">
+                  A few answers look identical. Make them distinct so your story
+                  stays coherent.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {contradictionFields.map((field) => (
+                    <Button
+                      key={field}
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setActiveStep(clampStepIndex(FIELD_STEP_INDEX[field] ?? 0))
+                      }
+                    >
+                      Edit {FIELD_LABEL[field]}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
             <AnimatePresence mode="wait">
               <motion.div
                 key={stepType}
@@ -382,37 +372,66 @@ export function StepWizard() {
                 exit={
                   prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -10 }
                 }
-                transition={{ duration: 0.25, ease: 'easeOut' }}
+                transition={{ duration: 0.4, ease: 'easeOut' }}
+                className="flex flex-col gap-2 text-left"
               >
-                {definition.render()}
+                <h1 className="font-heading text-4xl font-medium tracking-tight text-foreground">
+                  {definition.title}
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  {definition.subtitle}
+                </p>
               </motion.div>
             </AnimatePresence>
+
+            <GlassCard className="p-6 sm:p-8 relative">
+              <div className="pointer-events-none absolute inset-0 z-0 bg-film-grain mix-blend-overlay opacity-10 rounded-2xl" />
+              <div className="relative z-10">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={stepType}
+                    initial={
+                      prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 10 }
+                    }
+                    animate={
+                      prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }
+                    }
+                    exit={
+                      prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -10 }
+                    }
+                    transition={{ duration: 0.25, ease: 'easeOut' }}
+                  >
+                    {definition.render()}
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            </GlassCard>
+
+            {isLastStep ? <ByokSettings /> : null}
+
+            <div className="flex items-center justify-between gap-4 mt-4">
+              <Button
+                variant="ghost"
+                onClick={handleBack}
+                disabled={activeStep === 0}
+              >
+                <ArrowLeft className="size-4" aria-hidden />
+                Back
+              </Button>
+
+              {isLastStep ? (
+                <Button onClick={handleGenerate} disabled={!generationEnabled}>
+                  <Sparkles className="size-4" aria-hidden />
+                  Generate my story
+                </Button>
+              ) : (
+                <Button onClick={handleNext} disabled={!canAdvanceStep}>
+                  Next
+                  <ArrowRight className="size-4" aria-hidden />
+                </Button>
+              )}
+            </div>
           </div>
-        </GlassCard>
-
-        {isLastStep ? <ByokSettings /> : null}
-
-        <div className="flex items-center justify-between gap-4">
-          <Button
-            variant="ghost"
-            onClick={handleBack}
-            disabled={activeStep === 0}
-          >
-            <ArrowLeft className="size-4" aria-hidden />
-            Back
-          </Button>
-
-          {isLastStep ? (
-            <Button onClick={handleGenerate} disabled={!generationEnabled}>
-              <Sparkles className="size-4" aria-hidden />
-              Generate my story
-            </Button>
-          ) : (
-            <Button onClick={handleNext} disabled={!canAdvanceStep}>
-              Next
-              <ArrowRight className="size-4" aria-hidden />
-            </Button>
-          )}
         </div>
       </div>
     </FormProvider>

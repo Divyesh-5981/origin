@@ -146,9 +146,7 @@ export function ByokSettings() {
                     autoComplete="off"
                     aria-invalid={validation === 'invalid'}
                     aria-describedby={
-                      validation === 'invalid'
-                        ? 'byok-validation'
-                        : undefined
+                      validation === 'invalid' ? 'byok-validation' : undefined
                     }
                   />
                   <button
@@ -208,8 +206,7 @@ export function ByokSettings() {
                   variant="primary"
                   onClick={handleValidate}
                   disabled={
-                    apiKey.trim().length === 0 ||
-                    validation === 'validating'
+                    apiKey.trim().length === 0 || validation === 'validating'
                   }
                 >
                   {validation === 'validating' ? (

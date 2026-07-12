@@ -16,11 +16,11 @@ interface FallbackSceneProps {
 
 const VARIANT_GRADIENT: Record<FallbackVariant, string> = {
   landing:
-    'radial-gradient(120% 120% at 50% 10%, hsl(var(--ember) / 0.5), transparent 55%), radial-gradient(120% 120% at 20% 80%, hsl(var(--gradient-start) / 0.4), transparent 55%), radial-gradient(140% 140% at 80% 90%, hsl(var(--gradient-mid) / 0.35), transparent 60%)',
+    'radial-gradient(120% 120% at 50% 10%, hsl(var(--spark) / 0.4), transparent 55%), radial-gradient(120% 120% at 20% 80%, hsl(var(--ember) / 0.3), transparent 55%), radial-gradient(140% 140% at 80% 90%, hsl(var(--gradient-start) / 0.25), transparent 60%)',
   character:
-    'radial-gradient(120% 120% at 50% 15%, hsl(var(--spark) / 0.4), transparent 60%), radial-gradient(120% 120% at 20% 90%, hsl(var(--gradient-start) / 0.4), transparent 60%)',
+    'radial-gradient(120% 120% at 50% 15%, hsl(var(--spark) / 0.35), transparent 60%), radial-gradient(120% 120% at 20% 90%, hsl(var(--ember) / 0.3), transparent 60%)',
   share:
-    'radial-gradient(130% 130% at 80% 10%, hsl(var(--ember) / 0.5), transparent 60%), radial-gradient(120% 120% at 10% 80%, hsl(var(--gradient-mid) / 0.4), transparent 60%)',
+    'radial-gradient(130% 130% at 80% 10%, hsl(var(--ember) / 0.4), transparent 60%), radial-gradient(120% 120% at 10% 80%, hsl(var(--gradient-start) / 0.3), transparent 60%)',
 };
 
 const ORB_TRANSITION: Transition = {

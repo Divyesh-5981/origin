@@ -1,25 +1,13 @@
 import type { Metadata, Viewport } from 'next';
-import { Bricolage_Grotesque, Inter, JetBrains_Mono } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
 import { AppProviders } from '@/components/providers/app-providers';
 import { isClerkConfigured } from '@/lib/auth/clerk-config';
 import './globals.css';
 
-const fontHeading = Bricolage_Grotesque({
-  subsets: ['latin'],
-  variable: '--font-heading',
-  display: 'swap',
-});
-
-const fontBody = Inter({
+const fontInter = Inter({
   subsets: ['latin'],
   variable: '--font-body',
-  display: 'swap',
-});
-
-const fontMono = JetBrains_Mono({
-  subsets: ['latin'],
-  variable: '--font-mono',
   display: 'swap',
 });
 
@@ -59,8 +47,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: 'cover',
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: 'hsl(40 40% 97%)' },
-    { media: '(prefers-color-scheme: dark)', color: 'hsl(252 33% 7%)' },
+    { media: '(prefers-color-scheme: light)', color: 'hsl(220 20% 96%)' },
+    { media: '(prefers-color-scheme: dark)', color: 'hsl(228 45% 5%)' },
   ],
 };
 
@@ -73,7 +61,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${fontHeading.variable} ${fontBody.variable} ${fontMono.variable} h-full`}
+      className={`${fontInter.variable} h-full`}
     >
       <body className="flex min-h-full flex-col">
         <a

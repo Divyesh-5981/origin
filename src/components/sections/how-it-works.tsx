@@ -1,8 +1,8 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { motion, useReducedMotion, type Variants } from 'motion/react';
-import { SectionHeading } from '@/components/ui/section-heading';
-import { ThreadDivider } from '@/components/ui/thread-divider';
+import { Sparkles } from 'lucide-react';
 
 interface Stage {
   id: string;
@@ -14,200 +14,235 @@ interface Stage {
 const STAGES: Stage[] = [
   {
     id: 'spark',
-    label: '01',
-    title: 'Spark',
-    description:
-      'Answer a few questions about your passion. Every story starts with a spark.',
+    label: '01. The Setup',
+    title: 'Answer The Call',
+    description: 'Share a few brief details about your passion to set the stage.',
   },
   {
     id: 'ignite',
-    label: '02',
-    title: 'Ignite',
-    description:
-      'AI weaves your answers into a cinematic narrative, timeline, and character profile.',
+    label: '02. The Script',
+    title: 'AI Synthesis',
+    description: 'Our engine weaves your answers into a cohesive, legendary narrative script.',
   },
   {
     id: 'weave',
-    label: '03',
-    title: 'Weave',
-    description:
-      'Your story takes shape as a movie poster, voice narration, and interactive timeline.',
+    label: '03. The Production',
+    title: 'Visual & Audio',
+    description: 'Your story takes shape as a cinematic poster and dramatic voice narration.',
   },
   {
     id: 'share',
-    label: '04',
-    title: 'Share',
-    description:
-      'Send your origin story into the world with a shareable link and QR code.',
+    label: '04. The Premiere',
+    title: 'Share The Legend',
+    description: 'Launch your interactive origin story to the world.',
   },
 ];
 
 const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: 30, filter: "blur(10px)" },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: 'easeOut' },
+    filter: "blur(0px)",
+    transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
   },
 };
 
 /**
- * StageIcon — a small animated SVG representing each stage.
- * Each draws on scroll into view.
+ * ConstellationCanvas — an advanced auto-playing particle system that morphs into custom icons.
  */
-function StageIcon({ stageId }: { stageId: string }) {
-  const prefersReducedMotion = useReducedMotion();
+function ConstellationCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const drawProps = prefersReducedMotion
-    ? {}
-    : {
-        initial: { pathLength: 0, opacity: 0 },
-        whileInView: { pathLength: 1, opacity: 1 },
-        viewport: { once: true, margin: '-50px' },
-        transition: { duration: 1, ease: 'easeInOut' as const },
-      };
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-  if (stageId === 'spark') {
-    return (
-      <svg viewBox="0 0 64 64" className="size-16" fill="none" aria-hidden>
-        <defs>
-          <filter id="spark-glow">
-            <feGaussianBlur stdDeviation="2" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-        {/* Question marks converging into a spark */}
-        <motion.path
-          d="M 20 20 L 32 32 M 44 20 L 32 32 M 20 44 L 32 32 M 44 44 L 32 32"
-          stroke="hsl(var(--thread))"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          filter="url(#spark-glow)"
-          {...drawProps}
-        />
-        <motion.circle
-          cx="32"
-          cy="32"
-          r="4"
-          fill="hsl(var(--spark))"
-          filter="url(#spark-glow)"
-          initial={prefersReducedMotion ? undefined : { scale: 0 }}
-          whileInView={prefersReducedMotion ? undefined : { scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4, delay: 0.8, ease: 'easeOut' }}
-        />
-      </svg>
-    );
-  }
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  if (stageId === 'ignite') {
-    return (
-      <svg viewBox="0 0 64 64" className="size-16" fill="none" aria-hidden>
-        <defs>
-          <filter id="ignite-glow">
-            <feGaussianBlur stdDeviation="2" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-        {/* Burst from center */}
-        <motion.path
-          d="M 32 32 L 32 12 M 32 32 L 48 20 M 32 32 L 52 32 M 32 32 L 48 44 M 32 32 L 32 52 M 32 32 L 16 44 M 32 32 L 12 32 M 32 32 L 16 20"
-          stroke="hsl(var(--ember))"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          filter="url(#ignite-glow)"
-          {...drawProps}
-        />
-        <motion.circle
-          cx="32"
-          cy="32"
-          r="5"
-          fill="hsl(var(--spark))"
-          filter="url(#ignite-glow)"
-          initial={prefersReducedMotion ? undefined : { scale: 0 }}
-          whileInView={prefersReducedMotion ? undefined : { scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4, delay: 0.6, ease: 'easeOut' }}
-        />
-      </svg>
-    );
-  }
+    let width = 0;
+    let height = 0;
+    let dpr = 1;
 
-  if (stageId === 'weave') {
-    return (
-      <svg viewBox="0 0 64 64" className="size-16" fill="none" aria-hidden>
-        <defs>
-          <filter id="weave-glow">
-            <feGaussianBlur stdDeviation="1.5" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-        {/* Interwoven threads */}
-        <motion.path
-          d="M 12 20 Q 32 8 52 20 Q 32 32 12 44 Q 32 56 52 44"
-          stroke="hsl(var(--thread))"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          fill="none"
-          filter="url(#weave-glow)"
-          {...drawProps}
-        />
-        <motion.path
-          d="M 12 44 Q 32 32 52 20 M 12 20 Q 32 32 52 44"
-          stroke="hsl(var(--spark))"
-          strokeWidth="1"
-          strokeLinecap="round"
-          fill="none"
-          opacity="0.5"
-          filter="url(#weave-glow)"
-          {...drawProps}
-        />
-      </svg>
-    );
-  }
+    const resize = () => {
+      dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      width = rect.width;
+      height = rect.height;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+    };
+    resize();
+    window.addEventListener('resize', resize);
 
-  // share
-  return (
-    <svg viewBox="0 0 64 64" className="size-16" fill="none" aria-hidden>
-      <defs>
-        <filter id="share-glow">
-          <feGaussianBlur stdDeviation="1.5" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-      </defs>
-      {/* Radiating from center */}
-      <motion.circle
-        cx="32"
-        cy="32"
-        r="6"
-        stroke="hsl(var(--spark))"
-        strokeWidth="1.5"
-        fill="none"
-        filter="url(#share-glow)"
-        {...drawProps}
-      />
-      <motion.path
-        d="M 32 26 L 32 14 M 38 26 L 46 18 M 38 38 L 46 46 M 32 38 L 32 50 M 26 38 L 18 46 M 26 26 L 18 18"
-        stroke="hsl(var(--thread))"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        filter="url(#share-glow)"
-        {...drawProps}
-      />
-    </svg>
-  );
+    const primaryColor = '#FF4500'; // Ignition Orange
+    const secondaryColor = '#00F0FF'; // Electric Cyan
+
+    // Define icons as normalized coordinate sets (relative coordinates between -1 and 1)
+    const icons = {
+      // Pen/Form Icon
+      pen: [
+        { x: -0.4, y: 0.4 }, { x: -0.3, y: 0.3 }, { x: 0.2, y: -0.2 }, { x: 0.3, y: -0.3 },
+        { x: 0.4, y: -0.2 }, { x: 0.2, y: -0.4 }, { x: -0.2, y: 0.2 }, { x: -0.4, y: 0.4 },
+        { x: -0.3, y: 0.5 }, { x: -0.5, y: 0.3 }, { x: -0.4, y: 0.4 },
+        { x: 0.1, y: -0.1 }, { x: 0.3, y: -0.1 }, { x: 0.1, y: -0.3 }
+      ],
+      // AI / Brain Node Icon
+      ai: [
+        { x: 0, y: 0 },
+        { x: -0.4, y: -0.4 }, { x: 0.4, y: -0.4 }, { x: -0.4, y: 0.4 }, { x: 0.4, y: 0.4 },
+        { x: 0, y: -0.5 }, { x: 0, y: 0.5 }, { x: -0.5, y: 0 }, { x: 0.5, y: 0 },
+        { x: -0.2, y: -0.2 }, { x: 0.2, y: -0.2 }, { x: -0.2, y: 0.2 }, { x: 0.2, y: 0.2 }
+      ],
+      // Film Reel Icon
+      film: [
+        // Outer ring
+        ...Array.from({ length: 8 }).map((_, i) => {
+          const a = (i / 8) * Math.PI * 2;
+          return { x: Math.cos(a) * 0.5, y: Math.sin(a) * 0.5 };
+        }),
+        // Inner slots
+        { x: -0.2, y: -0.2 }, { x: 0.2, y: -0.2 }, { x: -0.2, y: 0.2 }, { x: 0.2, y: 0.2 },
+        { x: 0, y: 0 }
+      ],
+      // Broadcast Wave / Release Icon
+      broadcast: [
+        { x: 0, y: 0.3 },
+        // Waves
+        { x: -0.2, y: 0.1 }, { x: 0, y: 0.05 }, { x: 0.2, y: 0.1 },
+        { x: -0.4, y: -0.1 }, { x: -0.2, y: -0.25 }, { x: 0, y: -0.3 }, { x: 0.2, y: -0.25 }, { x: 0.4, y: -0.1 }
+      ]
+    };
+
+    const iconKeys = Object.keys(icons) as Array<keyof typeof icons>;
+    const PARTICLE_LIMIT = 60;
+    
+    // Create particles
+    const particles = Array.from({ length: PARTICLE_LIMIT }).map(() => ({
+      x: Math.random() * 400,
+      y: Math.random() * 200,
+      vx: (Math.random() - 0.5) * 0.5,
+      vy: (Math.random() - 0.5) * 0.5,
+      targetX: 0,
+      targetY: 0
+    }));
+
+    let frame = 0;
+    let animationId: number;
+
+    const render = () => {
+      ctx.clearRect(0, 0, width, height);
+      
+      // Shifting colors / glow setup
+      const time = frame * 0.01;
+      const currentIconIndex = Math.floor(time / 4) % iconKeys.length;
+      const nextIconIndex = (currentIconIndex + 1) % iconKeys.length;
+      
+      // Morph progress between current and next icon
+      const rawProgress = (time % 4) / 4;
+      const morphProgress = rawProgress < 0.8 
+        ? 0 
+        : (rawProgress - 0.8) / 0.2; // Quick transition at the end
+
+      const currentKey = iconKeys[currentIconIndex];
+      const nextKey = iconKeys[nextIconIndex];
+      
+      const currentPoints = icons[currentKey];
+      const nextPoints = icons[nextKey];
+
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const iconScale = Math.min(width, height) * 0.35;
+
+      // Draw constellation grid background
+      ctx.strokeStyle = 'rgba(255,255,255,0.02)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i < width; i += 30) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, height);
+        ctx.stroke();
+      }
+
+      // Update and draw particles
+      particles.forEach((p, idx) => {
+        // Assign target points from the current icon
+        const currentTarget = currentPoints[idx % currentPoints.length];
+        const nextTarget = nextPoints[idx % nextPoints.length];
+
+        // Interpolated targets
+        const tx = currentTarget.x * (1 - morphProgress) + nextTarget.x * morphProgress;
+        const ty = currentTarget.y * (1 - morphProgress) + nextTarget.y * morphProgress;
+
+        p.targetX = centerX + tx * iconScale;
+        p.targetY = centerY + ty * iconScale;
+
+        if (prefersReduced) {
+          p.x = p.targetX;
+          p.y = p.targetY;
+        } else {
+          // Physics/spring force towards target
+          const dx = p.targetX - p.x;
+          const dy = p.targetY - p.y;
+          
+          p.vx += dx * 0.015;
+          p.vy += dy * 0.015;
+          
+          // Friction
+          p.vx *= 0.88;
+          p.vy *= 0.88;
+
+          p.x += p.vx;
+          p.y += p.vy;
+        }
+
+        // Draw particle
+        ctx.fillStyle = idx % 2 === 0 ? primaryColor : secondaryColor;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Connect close particles with constellation lines
+        for (let j = idx + 1; j < particles.length; j++) {
+          const other = particles[j];
+          const distDx = p.x - other.x;
+          const distDy = p.y - other.y;
+          const dist = Math.sqrt(distDx * distDx + distDy * distDy);
+          
+          if (dist < 45) {
+            ctx.strokeStyle = `rgba(0, 240, 255, ${0.15 * (1 - dist / 45)})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(other.x, other.y);
+            ctx.stroke();
+          }
+        }
+      });
+
+      // Display phase tag
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.font = 'bold 9px var(--font-body)';
+      ctx.textAlign = 'center';
+      const label = `PIPELINE STAGE: 0${currentIconIndex + 1} - ${currentKey.toUpperCase()}`;
+      ctx.fillText(label, centerX, height - 15);
+
+      frame++;
+      animationId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(animationId);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="absolute inset-0 h-full w-full opacity-60" aria-hidden />;
 }
 
 export function HowItWorks() {
@@ -216,112 +251,57 @@ export function HowItWorks() {
   return (
     <section
       aria-labelledby="how-it-works-heading"
-      className="mx-auto w-full max-w-5xl px-4 py-24 sm:px-6"
+      className="relative mx-auto w-full max-w-6xl px-4 py-32 sm:px-6"
     >
-      <SectionHeading
-        id="how-it-works-heading"
-        eyebrow="How it works"
-        title="From spark to story"
-        align="center"
-        className="mb-16"
-      />
-
-      {/* Desktop: horizontal flow with connecting thread */}
-      <div className="hidden md:block">
-        <div className="relative">
-          {/* Connecting thread */}
-          <svg
-            className="absolute left-0 right-0 top-20 w-full"
-            height="2"
-            viewBox="0 0 1000 2"
-            preserveAspectRatio="none"
-            aria-hidden
-          >
-            <defs>
-              <linearGradient id="flow-thread" x1="0" y1="0" x2="1" y2="0">
-                <stop
-                  offset="0%"
-                  stopColor="hsl(var(--thread))"
-                  stopOpacity="0"
-                />
-                <stop
-                  offset="50%"
-                  stopColor="hsl(var(--spark))"
-                  stopOpacity="0.5"
-                />
-                <stop
-                  offset="100%"
-                  stopColor="hsl(var(--thread))"
-                  stopOpacity="0"
-                />
-              </linearGradient>
-            </defs>
-            <motion.line
-              x1="0"
-              y1="1"
-              x2="1000"
-              y2="1"
-              stroke="url(#flow-thread)"
-              strokeWidth="1.5"
-              initial={prefersReducedMotion ? undefined : { pathLength: 0 }}
-              whileInView={prefersReducedMotion ? undefined : { pathLength: 1 }}
-              viewport={{ once: true, margin: '-80px' }}
-              transition={{ duration: 1.5, ease: 'easeInOut' }}
-            />
-          </svg>
-
-          <div className="relative grid grid-cols-4 gap-6">
-            {STAGES.map((stage, index) => (
-              <motion.div
-                key={stage.id}
-                className="flex flex-col items-center text-center"
-                variants={cardVariants}
-                initial={prefersReducedMotion ? false : 'hidden'}
-                whileInView="visible"
-                viewport={{ once: true, margin: '-50px' }}
-                transition={{ delay: index * 0.15 }}
-              >
-                <StageIcon stageId={stage.id} />
-                <span className="mt-4 text-caption font-medium uppercase tracking-wider text-primary">
-                  {stage.label}
-                </span>
-                <h3 className="mt-1 font-heading text-subheading text-foreground">
-                  {stage.title}
-                </h3>
-                <p className="mt-2 text-caption text-muted-foreground">
-                  {stage.description}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
+      <div className="mb-20 flex flex-col items-center text-center">
+        <motion.div
+          className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur-md"
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <Sparkles className="size-3.5 text-electric-cyan" />
+          <span>The Production Pipeline</span>
+        </motion.div>
+        <motion.h2
+          id="how-it-works-heading"
+          className="text-4xl font-medium tracking-tight text-foreground sm:text-5xl"
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.1 }}
+        >
+          How a Legend is Forged
+        </motion.h2>
       </div>
 
-      {/* Mobile: vertical stack */}
-      <div className="flex flex-col gap-8 md:hidden">
+      {/* Auto-playing canvas constellation flow animation */}
+      <div className="relative mb-16 h-80 w-full overflow-hidden rounded-2xl border border-white/10 bg-black/60 shadow-glow-cyan backdrop-blur-xl">
+        <div className="absolute inset-0 bg-gradient-to-t from-electric-cyan/5 to-transparent" />
+        <ConstellationCanvas />
+      </div>
+
+      {/* Stage cards */}
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {STAGES.map((stage, index) => (
           <motion.div
             key={stage.id}
-            className="flex flex-col items-center text-center"
+            className="group relative flex flex-col rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition-all hover:bg-white/10 hover:border-white/20"
             variants={cardVariants}
             initial={prefersReducedMotion ? false : 'hidden'}
             whileInView="visible"
             viewport={{ once: true, margin: '-50px' }}
-            transition={{ delay: index * 0.1 }}
+            transition={{ delay: index * 0.15 }}
           >
-            <StageIcon stageId={stage.id} />
-            <span className="mt-4 text-caption font-medium uppercase tracking-wider text-primary">
+            <div className="mb-4 text-[10px] font-bold uppercase tracking-widest text-electric-cyan">
               {stage.label}
-            </span>
-            <h3 className="mt-1 font-heading text-subheading text-foreground">
+            </div>
+            <h3 className="mb-2 text-xl font-medium text-foreground">
               {stage.title}
             </h3>
-            <p className="mt-2 text-caption text-muted-foreground">
+            <p className="text-sm leading-relaxed text-muted-foreground">
               {stage.description}
             </p>
-            {index < STAGES.length - 1 ? (
-              <ThreadDivider className="mt-6" width="fixed" />
-            ) : null}
           </motion.div>
         ))}
       </div>

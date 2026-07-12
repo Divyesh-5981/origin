@@ -47,7 +47,7 @@ export function PassionStep() {
                   'relative rounded-full border px-4 py-2 text-caption font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
                   selected
                     ? 'border-primary bg-primary text-primary-foreground shadow-ignition'
-                    : 'border-border bg-surface-elevated text-foreground hover:bg-secondary',
+                    : 'border-border bg-surface-elevated text-foreground hover:bg-secondary hover:text-secondary-foreground',
                 )}
               >
                 {selected ? (

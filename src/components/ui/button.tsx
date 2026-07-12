@@ -12,17 +12,17 @@ import { motion, useReducedMotion, type Variants } from 'motion/react';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  'group relative inline-flex items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-lg font-heading text-body font-semibold transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50',
+  'group relative inline-flex items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-lg font-heading text-body font-semibold transition-transform duration-100 ease-out transform-gpu focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
         primary:
-          'bg-primary text-primary-foreground shadow-glow hover:-translate-y-0.5',
+          'bg-primary text-primary-foreground shadow-glow hover:-translate-y-0.5 duration-100 ease-out transform-gpu',
         secondary:
-          'border border-border bg-card text-card-foreground hover:bg-surface-elevated',
-        ghost: 'text-foreground hover:bg-surface-elevated',
+          'border border-border bg-card text-card-foreground hover:bg-surface-elevated duration-100 ease-out transform-gpu',
+        ghost: 'text-foreground hover:bg-surface-elevated duration-100 ease-out transform-gpu',
         outline:
-          'border border-border bg-transparent text-foreground hover:bg-surface-elevated',
+          'border border-border bg-transparent text-foreground hover:bg-surface-elevated duration-100 ease-out transform-gpu',
       },
       size: {
         sm: 'px-3 py-2 text-caption',

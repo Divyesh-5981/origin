@@ -69,7 +69,7 @@ export default async function StoriesPage() {
         className="pointer-events-none absolute inset-0 -z-10 bg-gradient-ignition"
         aria-hidden
       />
-      <h1 className="mb-8 bg-gradient-cinematic bg-clip-text font-heading text-heading-lg text-transparent text-glow-spark">
+      <h1 className="mb-8 bg-gradient-to-r from-ignition-orange via-white to-electric-cyan bg-clip-text font-heading text-heading-lg text-transparent text-glow">
         Your stories
       </h1>
       <StoryList stories={stories} />

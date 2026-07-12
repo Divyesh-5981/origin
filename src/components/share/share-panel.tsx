@@ -8,15 +8,13 @@ import {
   buildSocialShareIntent,
   type SocialTarget,
 } from '@/lib/core/share-links';
-import { PosterRenderer } from '@/components/story/poster-renderer';
 import { Button } from '@/components/ui/button';
 import { GlassCard } from '@/components/ui/glass-card';
-import type { PosterSpec } from '@/types';
 
 interface SharePanelProps {
   shareUrl: string | null;
   storyText: string;
-  poster: Partial<PosterSpec>;
+  poster: any;
   heroTitle: string;
 }
 
@@ -84,7 +82,7 @@ export function SharePanel({
 
           <a
             href={shareUrl}
-            className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface-elevated px-4 py-2 text-caption font-medium text-foreground hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface-elevated px-4 py-2 text-caption font-medium text-foreground hover:bg-secondary hover:text-secondary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             <Link2 className="size-4" aria-hidden />
             {shareUrl}
@@ -104,16 +102,12 @@ export function SharePanel({
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="inline-flex items-center justify-center rounded-lg border border-border bg-surface-elevated px-4 py-2 text-caption font-medium text-foreground hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                className="inline-flex items-center justify-center rounded-lg border border-border bg-surface-elevated px-4 py-2 text-caption font-medium text-foreground hover:bg-secondary hover:text-secondary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 {label}
               </motion.a>
             ))}
           </div>
-        </div>
-
-        <div className="border-t border-border pt-6">
-          <PosterRenderer spec={poster} />
         </div>
       </div>
     </GlassCard>
