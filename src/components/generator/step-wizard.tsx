@@ -252,9 +252,9 @@ export function StepWizard() {
 
 	return (
 		<FormProvider {...form}>
-			<div className="relative flex min-h-screen w-full flex-col lg:flex-row bg-background overflow-hidden">
+			<div className="relative flex min-h-[calc(100vh-4rem)] w-full flex-col lg:h-[calc(100vh-4rem)] lg:flex-row bg-background overflow-hidden">
 				{/* Left column: 3D viewport */}
-				<div className="relative h-[38vh] w-full lg:h-screen lg:w-[42%] border-b lg:border-b-0 lg:border-r border-white/10 bg-black/30 overflow-hidden">
+				<div className="relative h-[38vh] w-full lg:h-full lg:w-[42%] border-b lg:border-b-0 lg:border-r border-white/10 bg-black/30 overflow-hidden">
 					<div className="pointer-events-none absolute inset-0 z-20 bg-film-grain mix-blend-overlay opacity-25" />
 					<div className="pointer-events-none absolute inset-0 z-20 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.8)_100%)]" />
 

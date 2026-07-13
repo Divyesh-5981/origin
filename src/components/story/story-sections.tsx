@@ -303,9 +303,9 @@ export function StorySections({
 	}
 
 	return (
-		<main className="relative min-h-screen flex flex-col lg:flex-row bg-background overflow-hidden lg:overflow-visible">
+		<main className="relative min-h-[calc(100vh-4rem)] flex flex-col lg:h-[calc(100vh-4rem)] lg:flex-row bg-background overflow-hidden">
 			{/* LEFT COLUMN: DIRECTOR'S CAMERA CONTROLS */}
-			<aside className="relative lg:w-[25%] p-6 lg:p-8 border-b lg:border-b-0 lg:border-r border-white/10 bg-black/40 backdrop-blur-md flex flex-col justify-between shrink-0 z-30 lg:sticky lg:top-16 lg:self-start lg:h-[calc(100vh-4rem)] lg:overflow-y-auto">
+			<aside className="relative lg:w-[25%] p-6 lg:p-8 border-b lg:border-b-0 lg:border-r border-white/10 bg-black/40 backdrop-blur-md flex flex-col justify-between shrink-0 z-30 lg:h-full lg:overflow-y-auto">
 				<div className="flex flex-col gap-8">
 					{/* Header Branding */}
 					<div className="flex flex-col border-b border-white/5 pb-4">
@@ -376,7 +376,7 @@ export function StorySections({
 			</aside>
 
 			{/* RIGHT COLUMN: CINEMATIC VIEWPORT */}
-			<section className="flex-1 relative min-h-[60vh] lg:min-h-screen flex items-center justify-center p-4 sm:p-8 lg:p-12 overflow-hidden z-10">
+			<section className="flex-1 relative min-h-[60vh] lg:h-full flex items-center justify-center p-4 sm:p-8 lg:p-12 overflow-hidden z-10">
 				{/* 3D background visual mapped behind card viewport */}
 				<div className="pointer-events-none absolute inset-0 -z-10" aria-hidden>
 					<HeroVisual />
@@ -395,7 +395,7 @@ export function StorySections({
 				</div>
 
 				{/* Active Scene Panel rendering viewport */}
-				<div className="w-full max-w-3xl relative z-10">
+				<div className="w-full max-w-3xl relative z-10 flex min-h-0 max-h-full flex-col overflow-y-auto">
 					<AnimatePresence mode="wait">
 						<motion.div
 							key={activeTab}
